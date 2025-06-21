@@ -150,7 +150,7 @@ Resources:
 Outputs:
   CostGuardApiUrl:
     Description: "API Gateway endpoint URL for CostGuard"
-    Value: !Sub "https://${CostGuardApi}.execute-api.${AWS::AIzaSyChM2_xU0B5b-knh2tYIqXVRe0NZiHJ-rg}.amazonaws.com/prod/"
+    Value: !Sub "https://${CostGuardApi}.execute-api.${AWS::XXXXXXXXXXXXXX}.amazonaws.com/prod/"
     Export:
       Name: CostGuardApiUrl
 
