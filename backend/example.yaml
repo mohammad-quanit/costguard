@@ -1,0 +1,161 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: CostGuard - Serverless Cost Alerting Application
+
+Globals:
+  Function:
+    Timeout: 30
+    Runtime: nodejs18.x
+    Environment:
+      Variables:
+        COST_TABLE_NAME: !Ref CostDataTable
+        ALERTS_TABLE_NAME: !Ref AlertsTable
+        SNS_TOPIC_ARN: !Ref NotificationTopic
+
+Resources:
+  # DynamoDB Tables
+  CostDataTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: costguard-cost-data
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: date
+          AttributeType: S
+        - AttributeName: service
+          AttributeType: S
+      KeySchema:
+        - AttributeName: date
+          KeyType: HASH
+        - AttributeName: service
+          KeyType: RANGE
+
+  AlertsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: costguard-alerts
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: alertId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: alertId
+          KeyType: HASH
+
+  # SNS Topic for Notifications
+  NotificationTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: costguard-notifications
+
+  # Lambda Functions
+  CostMonitorFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/functions/cost-monitor/
+      Handler: index.handler
+      Events:
+        ScheduleEvent:
+          Type: Schedule
+          Properties:
+            Schedule: rate(1 hour)
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref CostDataTable
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - ce:GetCostAndUsage
+                - ce:GetUsageReport
+              Resource: '*'
+
+  AlertProcessorFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/functions/alert-processor/
+      Handler: index.handler
+      Events:
+        DynamoDBEvent:
+          Type: DynamoDB
+          Properties:
+            Stream: !GetAtt CostDataTable.StreamArn
+            StartingPosition: LATEST
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AlertsTable
+        - SNSPublishMessagePolicy:
+            TopicName: !GetAtt NotificationTopic.TopicName
+
+  # API Gateway
+  CostGuardApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: prod
+      Cors:
+        AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
+        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+        AllowOrigin: "'*'"
+
+  GetCostsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/functions/get-costs/
+      Handler: index.handler
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            RestApiId: !Ref CostGuardApi
+            Path: /costs
+            Method: get
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref CostDataTable
+
+  ManageAlertsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/functions/manage-alerts/
+      Handler: index.handler
+      Events:
+        GetAlerts:
+          Type: Api
+          Properties:
+            RestApiId: !Ref CostGuardApi
+            Path: /alerts
+            Method: get
+        CreateAlert:
+          Type: Api
+          Properties:
+            RestApiId: !Ref CostGuardApi
+            Path: /alerts
+            Method: post
+        UpdateAlert:
+          Type: Api
+          Properties:
+            RestApiId: !Ref CostGuardApi
+            Path: /alerts/{alertId}
+            Method: put
+        DeleteAlert:
+          Type: Api
+          Properties:
+            RestApiId: !Ref CostGuardApi
+            Path: /alerts/{alertId}
+            Method: delete
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AlertsTable
+
+Outputs:
+  CostGuardApiUrl:
+    Description: "API Gateway endpoint URL for CostGuard"
+    Value: !Sub "https://${CostGuardApi}.execute-api.${AWS::AIzaSyChM2_xU0B5b-knh2tYIqXVRe0NZiHJ-rg}.amazonaws.com/prod/"
+    Export:
+      Name: CostGuardApiUrl
+
+  NotificationTopicArn:
+    Description: "SNS Topic ARN for notifications"
+    Value: !Ref NotificationTopic
+    Export:
+      Name: CostGuardNotificationTopic

@@ -1,0 +1,52 @@
+# "org" ensures this Service is used with the correct Serverless Framework Access Key.
+org: zenchatai
+# "service" is the name of this project. This will also be added to your AWS resource names.
+service: CostGuard
+app: costguard
+
+provider:
+  name: aws
+  runtime: nodejs22.x
+  region: us-east-1
+  environment:
+    COST_ALERT_TOPIC: ${env:COST_ALERT_TOPIC}
+    COST_ALERT_TABLE: ${env:COST_ALERT_TABLE}
+    DAILY_THRESHOLD_PERCENT: ${env:DAILY_THRESHOLD_PERCENT}
+    MONTHLY_BUDGET: ${env:MONTHLY_BUDGET}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - ce:GetCostAndUsage
+          Resource: "*"
+
+functions:
+  pingHandler:
+    handler: src/functions/ping.run
+    events:
+      - eventBridge:
+          schedule: rate(5 minutes)
+          description: Ping the server every 5 minutes
+      - http:
+          path: ping
+          method: get
+          
+  costAlert:
+    handler: src/functions/CostAlert/index.costAlertHandler
+    description: "Scheduled Lambda to check AWS cost and alert"
+    events:
+      - schedule: rate(1 day)
+
+  getCostData:
+    handler: src/functions/CostData/index.GetCostAndUsageHandler
+    description: "Optional: API to fetch cost data from DynamoDB"
+    events:
+      - http:
+          path: cost-usage
+          method: get
+          cors: true
+
+package:
+  patterns:
+    - '!node_modules/**'
