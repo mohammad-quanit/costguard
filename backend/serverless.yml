@@ -13,12 +13,25 @@ provider:
     COST_ALERT_TABLE: ${env:COST_ALERT_TABLE}
     DAILY_THRESHOLD_PERCENT: ${env:DAILY_THRESHOLD_PERCENT}
     MONTHLY_BUDGET: ${env:MONTHLY_BUDGET}
+    AWS_ACCOUNT_ID: ${env:AWS_ACCOUNT_ID, ""}
   iam:
     role:
       statements:
         - Effect: Allow
           Action:
             - ce:GetCostAndUsage
+            - ce:GetDimensionValues
+            - ce:GetUsageReport
+          Resource: "*"
+        - Effect: Allow
+          Action:
+            - budgets:ViewBudget
+            - budgets:DescribeBudgets
+            - budgets:DescribeBudget
+          Resource: "*"
+        - Effect: Allow
+          Action:
+            - sts:GetCallerIdentity
           Resource: "*"
 
 functions:
