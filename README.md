@@ -1,55 +1,56 @@
-# CostGuard 💰🛡️
+<!--
+title: 'AWS Node Scheduled Cron example in NodeJS'
+description: 'This is an example of creating a function that runs as a cron job using the serverless ''schedule'' event.'
+layout: Doc
+framework: v4
+platform: AWS
+language: nodeJS
+priority: 1
+authorLink: 'https://github.com/0dj0bz'
+authorName: 'Rob Abbott'
+authorAvatar: 'https://avatars3.githubusercontent.com/u/5679763?v=4&s=140'
+-->
 
-A serverless cloud cost alerting application built for AWS Lambda Hackathon.
+# Serverless Framework Node Scheduled Cron on AWS
 
-## Overview
-CostGuard helps small teams and startups avoid surprise AWS bills by providing real-time cost monitoring, intelligent alerts, and actionable insights.
+This template demonstrates how to develop and deploy a simple cron-like service running on AWS Lambda using the Serverless Framework.
 
-## Architecture
-- **Backend**: AWS Lambda + API Gateway + DynamoDB + CloudWatch + SNS
-- **Frontend**: React.js with AWS Amplify hosting
-- **Monitoring**: CloudWatch Events + Cost Explorer API
+This examples defines a single function, `rateHandler` which is triggered by an event of `schedule` type at a rate of 1 per minute. For detailed information about `schedule` event, please refer to corresponding section of Serverless [docs](https://serverless.com/framework/docs/providers/aws/events/schedule/).
 
-## Features
-- 📊 Real-time cost monitoring
-- 🚨 Smart threshold alerts
-- 📈 Cost trend analysis
-- 💡 Cost optimization recommendations
-- 📱 Multi-channel notifications (Email, Slack, SMS)
-- 🎯 Budget forecasting
+## Usage
 
-## Project Structure
+### Deployment
+
+In order to deploy the example, you need to run the following command:
+
 ```
-costguard/
-├── backend/           # Serverless backend
-│   ├── src/
-│   │   ├── functions/ # Lambda functions
-│   │   ├── utils/     # Shared utilities
-│   │   ├── models/    # Data models
-│   │   └── services/  # Business logic
-│   ├── infrastructure/ # IaC (SAM/CDK)
-│   └── tests/         # Unit tests
-├── frontend/          # React frontend
-│   ├── src/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   ├── hooks/
-│   │   └── services/
-│   └── public/
-└── docs/             # Documentation
+serverless deploy
 ```
 
-## Quick Start
-1. Clone the repository
-2. Set up AWS credentials
-3. Deploy backend: `cd backend && sam deploy`
-4. Start frontend: `cd frontend && npm start`
+After running deploy, you should see output similar to:
 
-## Tech Stack
-- **Backend**: Node.js, AWS Lambda, DynamoDB, SNS, CloudWatch
-- **Frontend**: React.js, Chart.js, AWS Amplify
-- **Infrastructure**: AWS SAM
-- **Testing**: Jest, React Testing Library
+```
+Deploying "aws-node-scheduled-cron" to stage "dev" (us-east-1)
 
-## Team
-Built with ❤️ for AWS Lambda Hackathon
+✔ Service deployed to stack aws-node-scheduled-cron-dev (151s)
+
+functions:
+  rateHandler: aws-node-scheduled-cron-dev-rateHandler (2.3 kB)
+
+```
+
+There is no additional step required. Your defined schedules becomes active right away after deployment.
+
+### Local development
+
+The easiest way to develop and test your function is to use the `dev` command:
+
+```
+serverless dev
+```
+
+This will start a local emulator of AWS Lambda and tunnel your requests to and from AWS Lambda, allowing you to interact with your function as if it were running in the cloud.
+
+Now you can invoke the function as before, but this time the function will be executed locally. Now you can develop your function locally, invoke it, and see the results immediately without having to re-deploy.
+
+When you are done developing, don't forget to run `serverless deploy` to deploy the function to the cloud.

@@ -1,0 +1,682 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "The AWS CloudFormation template for this Serverless application",
+  "Resources": {
+    "PingHandlerLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/CostGuard-dev-pingHandler"
+      }
+    },
+    "CostAlertLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/CostGuard-dev-costAlert"
+      }
+    },
+    "GetCostDataLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/CostGuard-dev-getCostData"
+      }
+    },
+    "IamRoleLambdaExecution": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "lambda.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "Policies": [
+          {
+            "PolicyName": {
+              "Fn::Join": [
+                "-",
+                [
+                  "CostGuard",
+                  "dev",
+                  "lambda"
+                ]
+              ]
+            },
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "logs:CreateLogStream",
+                    "logs:CreateLogGroup",
+                    "logs:TagResource"
+                  ],
+                  "Resource": [
+                    {
+                      "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/CostGuard-dev*:*"
+                    }
+                  ]
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "logs:PutLogEvents"
+                  ],
+                  "Resource": [
+                    {
+                      "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/CostGuard-dev*:*:*"
+                    }
+                  ]
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "ce:GetCostAndUsage",
+                    "ce:GetDimensionValues",
+                    "ce:GetUsageReport"
+                  ],
+                  "Resource": "*"
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "budgets:ViewBudget",
+                    "budgets:DescribeBudgets",
+                    "budgets:DescribeBudget"
+                  ],
+                  "Resource": "*"
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "sts:GetCallerIdentity"
+                  ],
+                  "Resource": "*"
+                }
+              ]
+            }
+          }
+        ],
+        "Path": "/",
+        "RoleName": {
+          "Fn::Join": [
+            "-",
+            [
+              "CostGuard",
+              "dev",
+              {
+                "Ref": "AWS::Region"
+              },
+              "lambdaRole"
+            ]
+          ]
+        }
+      }
+    },
+    "PingHandlerLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": "serverless-framework-deployments-us-east-1-de0c9720-9574",
+          "S3Key": "serverless/CostGuard/dev/1750594628308-2025-06-22T12:17:08.308Z/CostGuard.zip"
+        },
+        "Handler": "src/functions/ping.run",
+        "Runtime": "nodejs22.x",
+        "FunctionName": "CostGuard-dev-pingHandler",
+        "MemorySize": 1024,
+        "Timeout": 6,
+        "Environment": {
+          "Variables": {
+            "COST_ALERT_TOPIC": "your-sns-topic-arn",
+            "COST_ALERT_TABLE": "your-dynamodb-table-name",
+            "DAILY_THRESHOLD_PERCENT": "50",
+            "MONTHLY_BUDGET": "50",
+            "AWS_ACCOUNT_ID": ""
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "PingHandlerLogGroup"
+      ]
+    },
+    "CostAlertLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": "serverless-framework-deployments-us-east-1-de0c9720-9574",
+          "S3Key": "serverless/CostGuard/dev/1750594628308-2025-06-22T12:17:08.308Z/CostGuard.zip"
+        },
+        "Handler": "src/functions/CostAlert/index.costAlertHandler",
+        "Runtime": "nodejs22.x",
+        "FunctionName": "CostGuard-dev-costAlert",
+        "MemorySize": 1024,
+        "Timeout": 6,
+        "Description": "Scheduled Lambda to check AWS cost and alert",
+        "Environment": {
+          "Variables": {
+            "COST_ALERT_TOPIC": "your-sns-topic-arn",
+            "COST_ALERT_TABLE": "your-dynamodb-table-name",
+            "DAILY_THRESHOLD_PERCENT": "50",
+            "MONTHLY_BUDGET": "50",
+            "AWS_ACCOUNT_ID": ""
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "CostAlertLogGroup"
+      ]
+    },
+    "GetCostDataLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": "serverless-framework-deployments-us-east-1-de0c9720-9574",
+          "S3Key": "serverless/CostGuard/dev/1750594628308-2025-06-22T12:17:08.308Z/CostGuard.zip"
+        },
+        "Handler": "src/functions/CostData/index.GetCostAndUsageHandler",
+        "Runtime": "nodejs22.x",
+        "FunctionName": "CostGuard-dev-getCostData",
+        "MemorySize": 1024,
+        "Timeout": 6,
+        "Description": "Optional: API to fetch cost data from DynamoDB",
+        "Environment": {
+          "Variables": {
+            "COST_ALERT_TOPIC": "your-sns-topic-arn",
+            "COST_ALERT_TABLE": "your-dynamodb-table-name",
+            "DAILY_THRESHOLD_PERCENT": "50",
+            "MONTHLY_BUDGET": "50",
+            "AWS_ACCOUNT_ID": ""
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "GetCostDataLogGroup"
+      ]
+    },
+    "PingHandlerLambdaVersion7aLpujaktuKb2KXEPFvTdDz12Md6ggwzPt9QwN7m6U": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "PingHandlerLambdaFunction"
+        },
+        "CodeSha256": "CbzKtIceEBEtL3fQJ2beVHSnsq7BKe/B9pHHNjNY0G4="
+      }
+    },
+    "CostAlertLambdaVersion3OKzclbXjyee5xrIKfxdKfgJHFbhNJsanA6rvDI6I": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "CostAlertLambdaFunction"
+        },
+        "CodeSha256": "CbzKtIceEBEtL3fQJ2beVHSnsq7BKe/B9pHHNjNY0G4=",
+        "Description": "Scheduled Lambda to check AWS cost and alert"
+      }
+    },
+    "GetCostDataLambdaVersionS9eDN4h9riaJsqICt2eS72G23wmLB9GKkQsZ1ezZms": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "GetCostDataLambdaFunction"
+        },
+        "CodeSha256": "CbzKtIceEBEtL3fQJ2beVHSnsq7BKe/B9pHHNjNY0G4=",
+        "Description": "Optional: API to fetch cost data from DynamoDB"
+      }
+    },
+    "CostAlertEventsRuleSchedule1": {
+      "Type": "AWS::Events::Rule",
+      "Properties": {
+        "ScheduleExpression": "rate(1 day)",
+        "State": "ENABLED",
+        "Targets": [
+          {
+            "Arn": {
+              "Fn::GetAtt": [
+                "CostAlertLambdaFunction",
+                "Arn"
+              ]
+            },
+            "Id": "costAlertSchedule"
+          }
+        ]
+      }
+    },
+    "CostAlertLambdaPermissionEventsRuleSchedule1": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "CostAlertLambdaFunction",
+            "Arn"
+          ]
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "events.amazonaws.com",
+        "SourceArn": {
+          "Fn::GetAtt": [
+            "CostAlertEventsRuleSchedule1",
+            "Arn"
+          ]
+        }
+      }
+    },
+    "ApiGatewayRestApi": {
+      "Type": "AWS::ApiGateway::RestApi",
+      "Properties": {
+        "Name": "dev-CostGuard",
+        "EndpointConfiguration": {
+          "Types": [
+            "EDGE"
+          ]
+        },
+        "Policy": ""
+      }
+    },
+    "ApiGatewayResourcePing": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": [
+            "ApiGatewayRestApi",
+            "RootResourceId"
+          ]
+        },
+        "PathPart": "ping",
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        }
+      }
+    },
+    "ApiGatewayResourceCostDashusage": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": [
+            "ApiGatewayRestApi",
+            "RootResourceId"
+          ]
+        },
+        "PathPart": "cost-usage",
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        }
+      }
+    },
+    "ApiGatewayMethodCostDashusageOptions": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "AuthorizationType": "NONE",
+        "HttpMethod": "OPTIONS",
+        "MethodResponses": [
+          {
+            "StatusCode": "200",
+            "ResponseParameters": {
+              "method.response.header.Access-Control-Allow-Origin": true,
+              "method.response.header.Access-Control-Allow-Headers": true,
+              "method.response.header.Access-Control-Allow-Methods": true
+            },
+            "ResponseModels": {}
+          }
+        ],
+        "RequestParameters": {},
+        "Integration": {
+          "Type": "MOCK",
+          "RequestTemplates": {
+            "application/json": "{statusCode:200}"
+          },
+          "ContentHandling": "CONVERT_TO_TEXT",
+          "IntegrationResponses": [
+            {
+              "StatusCode": "200",
+              "ResponseParameters": {
+                "method.response.header.Access-Control-Allow-Origin": "'*'",
+                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent,X-Amzn-Trace-Id'",
+                "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET'"
+              },
+              "ResponseTemplates": {
+                "application/json": ""
+              }
+            }
+          ]
+        },
+        "ResourceId": {
+          "Ref": "ApiGatewayResourceCostDashusage"
+        },
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        }
+      }
+    },
+    "ApiGatewayMethodPingGet": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "HttpMethod": "GET",
+        "RequestParameters": {},
+        "ResourceId": {
+          "Ref": "ApiGatewayResourcePing"
+        },
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        },
+        "ApiKeyRequired": false,
+        "AuthorizationType": "NONE",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "PingHandlerLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "/invocations"
+              ]
+            ]
+          }
+        },
+        "MethodResponses": []
+      },
+      "DependsOn": [
+        "PingHandlerLambdaPermissionApiGateway"
+      ]
+    },
+    "ApiGatewayMethodCostDashusageGet": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "HttpMethod": "GET",
+        "RequestParameters": {},
+        "ResourceId": {
+          "Ref": "ApiGatewayResourceCostDashusage"
+        },
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        },
+        "ApiKeyRequired": false,
+        "AuthorizationType": "NONE",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "GetCostDataLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "/invocations"
+              ]
+            ]
+          }
+        },
+        "MethodResponses": []
+      },
+      "DependsOn": [
+        "GetCostDataLambdaPermissionApiGateway"
+      ]
+    },
+    "ApiGatewayDeployment1750594617861": {
+      "Type": "AWS::ApiGateway::Deployment",
+      "Properties": {
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        },
+        "StageName": "dev"
+      },
+      "DependsOn": [
+        "ApiGatewayMethodCostDashusageOptions",
+        "ApiGatewayMethodPingGet",
+        "ApiGatewayMethodCostDashusageGet"
+      ]
+    },
+    "PingHandlerLambdaPermissionApiGateway": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "PingHandlerLambdaFunction",
+            "Arn"
+          ]
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":",
+              {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "/*/*"
+            ]
+          ]
+        }
+      }
+    },
+    "GetCostDataLambdaPermissionApiGateway": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "GetCostDataLambdaFunction",
+            "Arn"
+          ]
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":",
+              {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "/*/*"
+            ]
+          ]
+        }
+      }
+    },
+    "CostGuarddevpingHandlerrule1EventBridgeRule": {
+      "Type": "AWS::Events::Rule",
+      "Properties": {
+        "Description": "Ping the server every 5 minutes",
+        "Name": "CostGuard-dev-pingHandler-rule-1",
+        "ScheduleExpression": "rate(5 minutes)",
+        "State": "ENABLED",
+        "Targets": [
+          {
+            "Arn": {
+              "Fn::GetAtt": [
+                "PingHandlerLambdaFunction",
+                "Arn"
+              ]
+            },
+            "Id": "CostGuard-dev-pingHandler-rule-1-target"
+          }
+        ]
+      }
+    },
+    "PingHandlerEventBridgeLambdaPermission1": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "PingHandlerLambdaFunction",
+            "Arn"
+          ]
+        },
+        "Principal": "events.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            ":",
+            [
+              "arn",
+              {
+                "Ref": "AWS::Partition"
+              },
+              "events",
+              {
+                "Ref": "AWS::Region"
+              },
+              {
+                "Ref": "AWS::AccountId"
+              },
+              {
+                "Fn::Join": [
+                  "/",
+                  [
+                    "rule",
+                    "CostGuard-dev-pingHandler-rule-1"
+                  ]
+                ]
+              }
+            ]
+          ]
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "ServerlessDeploymentBucketName": {
+      "Value": "serverless-framework-deployments-us-east-1-de0c9720-9574",
+      "Export": {
+        "Name": "sls-CostGuard-dev-ServerlessDeploymentBucketName"
+      }
+    },
+    "PingHandlerLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "PingHandlerLambdaVersion7aLpujaktuKb2KXEPFvTdDz12Md6ggwzPt9QwN7m6U"
+      },
+      "Export": {
+        "Name": "sls-CostGuard-dev-PingHandlerLambdaFunctionQualifiedArn"
+      }
+    },
+    "CostAlertLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "CostAlertLambdaVersion3OKzclbXjyee5xrIKfxdKfgJHFbhNJsanA6rvDI6I"
+      },
+      "Export": {
+        "Name": "sls-CostGuard-dev-CostAlertLambdaFunctionQualifiedArn"
+      }
+    },
+    "GetCostDataLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "GetCostDataLambdaVersionS9eDN4h9riaJsqICt2eS72G23wmLB9GKkQsZ1ezZms"
+      },
+      "Export": {
+        "Name": "sls-CostGuard-dev-GetCostDataLambdaFunctionQualifiedArn"
+      }
+    },
+    "ServiceEndpoint": {
+      "Description": "URL of the service endpoint",
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "https://",
+            {
+              "Ref": "ApiGatewayRestApi"
+            },
+            ".execute-api.",
+            {
+              "Ref": "AWS::Region"
+            },
+            ".",
+            {
+              "Ref": "AWS::URLSuffix"
+            },
+            "/dev"
+          ]
+        ]
+      },
+      "Export": {
+        "Name": "sls-CostGuard-dev-ServiceEndpoint"
+      }
+    }
+  }
+}
