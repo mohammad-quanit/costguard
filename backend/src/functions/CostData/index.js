@@ -60,36 +60,91 @@ module.exports.GetCostAndUsageHandler = async(_event) => {
     const results = response.ResultsByTime || [];
     let totalCost = 0;
     const months = new Set();
+    const serviceBreakdown = new Map(); // Track service costs across all time periods
+    const currentMonthServiceBreakdown = new Map(); // Track current month service costs
+
     results.forEach(day => {
       const amount = day.Groups?.reduce((sum, group) => sum + parseFloat(group.Metrics.BlendedCost.Amount || '0'), 0) || 0;
       totalCost += amount;
       // Track unique months
       const date = new Date(day.TimePeriod.Start);
-      months.add(`${date.getFullYear()}-${date.getMonth()}`);
+      const monthKey = `${date.getFullYear()}-${date.getMonth()}`;
+      months.add(monthKey);
+
+      // Process service breakdown for all periods
+      if (day.Groups) {
+        day.Groups.forEach(group => {
+          if (group.Keys && group.Keys[0]) {
+            const serviceName = group.Keys[0];
+            const serviceAmount = parseFloat(group.Metrics.BlendedCost.Amount || '0');
+            const serviceUsage = parseFloat(group.Metrics.UsageQuantity.Amount || '0');
+            const serviceUnit = group.Metrics.UsageQuantity.Unit || '';
+
+            // Aggregate for all periods
+            if (!serviceBreakdown.has(serviceName)) {
+              serviceBreakdown.set(serviceName, {
+                totalCost: 0,
+                totalUsage: 0,
+                unit: serviceUnit,
+                currency: group.Metrics.BlendedCost.Unit || 'USD',
+              });
+            }
+            const serviceData = serviceBreakdown.get(serviceName);
+            serviceData.totalCost += serviceAmount;
+            serviceData.totalUsage += serviceUsage;
+
+            // Track current month separately
+            const currentMonth = `${now.getFullYear()}-${now.getMonth()}`;
+            if (monthKey === currentMonth) {
+              if (!currentMonthServiceBreakdown.has(serviceName)) {
+                currentMonthServiceBreakdown.set(serviceName, {
+                  cost: 0,
+                  usage: 0,
+                  unit: serviceUnit,
+                  currency: group.Metrics.BlendedCost.Unit || 'USD',
+                });
+              }
+              const currentMonthData = currentMonthServiceBreakdown.get(serviceName);
+              currentMonthData.cost += serviceAmount;
+              currentMonthData.usage += serviceUsage;
+            }
+          }
+        });
+      }
     });
+
     const numDays = results.length;
     const numMonths = months.size;
     const dailyAverage = numDays > 0 ? totalCost / numDays : 0;
     const averageMonthlyCost = numMonths > 0 ? totalCost / numMonths : 0;
 
-    // Service count for the current month
-    const currentMonth = `${now.getFullYear()}-${now.getMonth()}`;
-    const serviceSet = new Set();
-    results.forEach(day => {
-      const date = new Date(day.TimePeriod.Start);
-      const monthKey = `${date.getFullYear()}-${date.getMonth()}`;
-      if (monthKey === currentMonth && day.Groups) {
-        day.Groups.forEach(group => {
-          if (group.Keys && group.Keys[0]) {
-            serviceSet.add(group.Keys[0]);
-          }
-        });
-      }
-    });
-    const serviceCount = serviceSet.size;
+    // Convert service breakdown to arrays and sort by cost
+    const allServicesBreakdown = Array.from(serviceBreakdown.entries())
+      .map(([serviceName, data]) => ({
+        serviceName,
+        totalCost: parseFloat(data.totalCost.toFixed(4)),
+        totalUsage: parseFloat(data.totalUsage.toFixed(4)),
+        unit: data.unit,
+        currency: data.currency,
+        percentage: totalCost > 0 ? parseFloat(((data.totalCost / totalCost) * 100).toFixed(2)) : 0,
+      }))
+      .sort((a, b) => b.totalCost - a.totalCost);
+
+    const currentMonthServicesBreakdown = Array.from(currentMonthServiceBreakdown.entries())
+      .map(([serviceName, data]) => ({
+        serviceName,
+        cost: parseFloat(data.cost.toFixed(4)),
+        usage: parseFloat(data.usage.toFixed(4)),
+        unit: data.unit,
+        currency: data.currency,
+      }))
+      .sort((a, b) => b.cost - a.cost);
+
+    const serviceCount = currentMonthServiceBreakdown.size;
 
     // Calculate current month's cost
     let currentMonthCost = 0;
+    const currentMonth = `${now.getFullYear()}-${now.getMonth()}`;
     results.forEach(day => {
       const date = new Date(day.TimePeriod.Start);
       const monthKey = `${date.getFullYear()}-${date.getMonth()}`;
@@ -132,6 +187,16 @@ module.exports.GetCostAndUsageHandler = async(_event) => {
       '| Full Monthly Budget History:', monthlyBudgetHistory,
     );
 
+    console.log(
+      '[CostData] Service Breakdown:',
+      '| Total Services (All Periods):', allServicesBreakdown.length,
+      '| Current Month Services:', currentMonthServicesBreakdown.length,
+      '| Top Service (All Time):', allServicesBreakdown[0]?.serviceName || 'N/A',
+      '| Top Service Cost (All Time):', allServicesBreakdown[0]?.totalCost || 0,
+      '| Top Service (Current Month):', currentMonthServicesBreakdown[0]?.serviceName || 'N/A',
+      '| Top Service Cost (Current Month):', currentMonthServicesBreakdown[0]?.cost || 0,
+    );
+
     const responseData = {
       totalCost: totalCost.toFixed(2),
       dailyAverage: dailyAverage.toFixed(2),
@@ -141,6 +206,19 @@ module.exports.GetCostAndUsageHandler = async(_event) => {
       currency: results[0]?.Groups?.[0]?.Metrics?.BlendedCost?.Unit || 'USD',
       start,
       end,
+      // Service breakdown for all periods (6 months)
+      services: {
+        allPeriods: allServicesBreakdown,
+        currentMonth: currentMonthServicesBreakdown,
+        summary: {
+          totalServices: allServicesBreakdown.length,
+          currentMonthServices: currentMonthServicesBreakdown.length,
+          topServiceAllTime: allServicesBreakdown[0]?.serviceName || 'N/A',
+          topServiceCurrentMonth: currentMonthServicesBreakdown[0]?.serviceName || 'N/A',
+          topServiceCostAllTime: allServicesBreakdown[0]?.totalCost || 0,
+          topServiceCostCurrentMonth: currentMonthServicesBreakdown[0]?.cost || 0,
+        },
+      },
       budget: {
         monthlyBudget: effectiveBudget.toFixed(2),
         budgetUtilization: budgetUtilization.toFixed(2),
@@ -165,6 +243,24 @@ module.exports.GetCostAndUsageHandler = async(_event) => {
       const fallbackData = { ...responseData };
       delete fallbackData.budget.monthlyHistory;
       fallbackData.budget.monthlyHistoryError = 'Could not serialize monthly history data';
+
+      // Try to preserve services data in fallback
+      try {
+        JSON.stringify(fallbackData.services);
+        console.log('Services data serialization successful in fallback');
+      } catch (servicesError) {
+        console.error('Services data serialization error:', servicesError);
+        fallbackData.services = {
+          error: 'Could not serialize services breakdown data',
+          summary: {
+            totalServices: allServicesBreakdown.length,
+            currentMonthServices: currentMonthServicesBreakdown.length,
+            topServiceAllTime: allServicesBreakdown[0]?.serviceName || 'N/A',
+            topServiceCurrentMonth: currentMonthServicesBreakdown[0]?.serviceName || 'N/A',
+          },
+        };
+      }
+
       serializedBody = JSON.stringify(fallbackData);
     }
 
