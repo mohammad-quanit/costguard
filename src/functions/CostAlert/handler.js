@@ -7,7 +7,7 @@ const { getTodayDateString, getStartOfMonthNMonthsAgo } = require('../../utils/d
  * @param {Object} event - Lambda event object
  * @returns {Object} HTTP response
  */
-module.exports.costAlertHandler = async (event) => {
+module.exports.costAlertHandler = async(_event) => {
   console.log('[CostAlertHandler] Starting cost alert processing');
 
   try {
@@ -17,14 +17,14 @@ module.exports.costAlertHandler = async (event) => {
     // Get yesterday's cost data
     const today = getTodayDateString();
     const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-    
+
     console.log(`[CostAlertHandler] Fetching cost data for ${yesterday}`);
 
     // Get cost data for yesterday
     const yesterdayCostData = await costExplorerService.getCostAndUsage({
       start: yesterday,
       end: today,
-      granularity: 'DAILY'
+      granularity: 'DAILY',
     });
 
     // Get 7-day average for comparison
@@ -32,7 +32,7 @@ module.exports.costAlertHandler = async (event) => {
     const weekCostData = await costExplorerService.getCostAndUsage({
       start: sevenDaysAgo,
       end: today,
-      granularity: 'DAILY'
+      granularity: 'DAILY',
     });
 
     // Calculate metrics
@@ -54,7 +54,7 @@ module.exports.costAlertHandler = async (event) => {
       isAnomaly,
       percentageIncrease: percentageIncrease.toFixed(2),
       currency: 'USD',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
 
     if (isAnomaly) {
@@ -74,8 +74,8 @@ module.exports.costAlertHandler = async (event) => {
       500,
       {
         message: error.message,
-        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
-      }
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
+      },
     );
   }
 };
@@ -87,10 +87,12 @@ module.exports.costAlertHandler = async (event) => {
  */
 function calculateDayTotal(costData) {
   const results = costData.ResultsByTime || [];
-  if (results.length === 0) return 0;
+  if (results.length === 0) {
+    return 0;
+  }
 
   const dayResult = results[0];
-  return dayResult.Groups?.reduce((sum, group) => 
+  return dayResult.Groups?.reduce((sum, group) =>
     sum + parseFloat(group.Metrics.BlendedCost.Amount || '0'), 0) || 0;
 }
 
@@ -101,13 +103,15 @@ function calculateDayTotal(costData) {
  */
 function calculateWeeklyAverage(costData) {
   const results = costData.ResultsByTime || [];
-  if (results.length === 0) return 0;
+  if (results.length === 0) {
+    return 0;
+  }
 
   let totalCost = 0;
   let dayCount = 0;
 
   results.forEach(day => {
-    const dayTotal = day.Groups?.reduce((sum, group) => 
+    const dayTotal = day.Groups?.reduce((sum, group) =>
       sum + parseFloat(group.Metrics.BlendedCost.Amount || '0'), 0) || 0;
     totalCost += dayTotal;
     dayCount++;

@@ -15,9 +15,9 @@ function createSuccessResponse(data, statusCode = 200) {
       'Content-Type': 'application/json',
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Headers': 'Content-Type',
-      'Access-Control-Allow-Methods': 'OPTIONS,POST,GET'
+      'Access-Control-Allow-Methods': 'OPTIONS,POST,GET',
     },
-    body: JSON.stringify(data)
+    body: JSON.stringify(data),
   };
 }
 
@@ -32,7 +32,7 @@ function createErrorResponse(message, statusCode = 500, details = null) {
   const errorBody = {
     error: message,
     statusCode,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   };
 
   if (details) {
@@ -45,9 +45,9 @@ function createErrorResponse(message, statusCode = 500, details = null) {
       'Content-Type': 'application/json',
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Headers': 'Content-Type',
-      'Access-Control-Allow-Methods': 'OPTIONS,POST,GET'
+      'Access-Control-Allow-Methods': 'OPTIONS,POST,GET',
     },
-    body: JSON.stringify(errorBody)
+    body: JSON.stringify(errorBody),
   };
 }
 
@@ -62,7 +62,7 @@ function safeJsonStringify(data, fallbackData = null) {
     return JSON.stringify(data);
   } catch (error) {
     console.error('JSON serialization error:', error);
-    
+
     if (fallbackData) {
       try {
         return JSON.stringify(fallbackData);
@@ -70,11 +70,11 @@ function safeJsonStringify(data, fallbackData = null) {
         console.error('Fallback JSON serialization error:', fallbackError);
       }
     }
-    
+
     // Ultimate fallback
     return JSON.stringify({
       error: 'Data serialization failed',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 }
@@ -88,16 +88,16 @@ function safeJsonStringify(data, fallbackData = null) {
  */
 function createSafeResponse(data, fallbackData = null, statusCode = 200) {
   const serializedBody = safeJsonStringify(data, fallbackData);
-  
+
   return {
     statusCode,
     headers: {
       'Content-Type': 'application/json',
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Headers': 'Content-Type',
-      'Access-Control-Allow-Methods': 'OPTIONS,POST,GET'
+      'Access-Control-Allow-Methods': 'OPTIONS,POST,GET',
     },
-    body: serializedBody
+    body: serializedBody,
   };
 }
 
@@ -108,7 +108,7 @@ function createSafeResponse(data, fallbackData = null, statusCode = 200) {
  */
 function logResponse(functionName, responseData) {
   console.log(`[${functionName}] Response created successfully`);
-  
+
   // Log key metrics without sensitive data
   if (responseData.totalCost) {
     console.log(`[${functionName}] Total Cost: ${responseData.totalCost}`);
@@ -126,5 +126,5 @@ module.exports = {
   createErrorResponse,
   safeJsonStringify,
   createSafeResponse,
-  logResponse
+  logResponse,
 };

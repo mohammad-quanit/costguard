@@ -25,24 +25,24 @@ module.exports = {
   handlers: {
     GetCostAndUsageHandler,
     costAlertHandler,
-    pingHandler
+    pingHandler,
   },
-  
+
   // Services
   services: {
     CostExplorerService,
-    BudgetsService
+    BudgetsService,
   },
-  
+
   // Utilities
   utils: {
     dateUtils,
     budgetUtils,
-    responseUtils
+    responseUtils,
   },
-  
+
   // Models
   models: {
-    costDataModel
-  }
+    costDataModel,
+  },
 };

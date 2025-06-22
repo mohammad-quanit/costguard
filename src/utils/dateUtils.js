@@ -58,7 +58,7 @@ function formatDate(date) {
   return d.toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'short',
-    day: 'numeric'
+    day: 'numeric',
   });
 }
 
@@ -89,5 +89,5 @@ module.exports = {
   getRemainingDaysInMonth,
   formatDate,
   getMonthKey,
-  getCurrentMonthKey
+  getCurrentMonthKey,
 };

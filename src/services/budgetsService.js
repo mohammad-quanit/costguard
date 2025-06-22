@@ -30,12 +30,12 @@ class BudgetsService {
   async getBudgets(accountId = null) {
     try {
       const effectiveAccountId = accountId || process.env.AWS_ACCOUNT_ID || await this.getAccountId();
-      
+
       const command = new DescribeBudgetsCommand({
         AccountId: effectiveAccountId,
         MaxResults: 100,
       });
-      
+
       const response = await this.client.send(command);
       return response;
     } catch (error) {
@@ -53,7 +53,7 @@ class BudgetsService {
   async getMonthlyCostHistoryFromBudgets(budgets, accountId = null) {
     try {
       const effectiveAccountId = accountId || process.env.AWS_ACCOUNT_ID || await this.getAccountId();
-      
+
       const now = new Date();
       const endDate = new Date(now);
       const startDate = new Date(now.getFullYear(), now.getMonth() - 11, now.getDate());
@@ -72,10 +72,10 @@ class BudgetsService {
               End: endDate,
             },
           });
-          
+
           const response = await this.client.send(command);
           const monthlyData = [];
-          
+
           if (response.BudgetPerformanceHistory && response.BudgetPerformanceHistory.BudgetedAndActualAmountsList) {
             response.BudgetPerformanceHistory.BudgetedAndActualAmountsList.forEach(item => {
               monthlyData.push({
@@ -97,7 +97,7 @@ class BudgetsService {
               });
             });
           }
-          
+
           budgetHistories.push({
             budgetName: budget.BudgetName,
             budgetType: budget.BudgetType,
@@ -127,7 +127,7 @@ class BudgetsService {
           });
         }
       }
-      
+
       console.log(`Returning budget histories for ${budgetHistories.length} budgets`);
       return budgetHistories;
     } catch (error) {

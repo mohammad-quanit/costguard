@@ -20,7 +20,7 @@ class CostExplorerService {
     end,
     granularity = 'DAILY',
     metrics = ['BlendedCost', 'UnblendedCost', 'UsageQuantity'],
-    groupBy = [{ Type: 'DIMENSION', Key: 'SERVICE' }]
+    groupBy = [{ Type: 'DIMENSION', Key: 'SERVICE' }],
   }) {
     try {
       const command = new GetCostAndUsageCommand({
@@ -50,12 +50,12 @@ class CostExplorerService {
     const end = now.toISOString().split('T')[0];
 
     const response = await this.getCostAndUsage({ start, end });
-    
+
     return {
       rawData: response,
       start,
       end,
-      processedData: this.processServiceBreakdown(response, now)
+      processedData: this.processServiceBreakdown(response, now),
     };
   }
 
@@ -74,7 +74,7 @@ class CostExplorerService {
     const currentMonth = `${now.getFullYear()}-${now.getMonth()}`;
 
     results.forEach(day => {
-      const amount = day.Groups?.reduce((sum, group) => 
+      const amount = day.Groups?.reduce((sum, group) =>
         sum + parseFloat(group.Metrics.BlendedCost.Amount || '0'), 0) || 0;
       totalCost += amount;
 
@@ -96,7 +96,7 @@ class CostExplorerService {
                 totalCost: 0,
                 totalUsage: 0,
                 unit: serviceUnit,
-                currency: group.Metrics.BlendedCost.Unit || 'USD'
+                currency: group.Metrics.BlendedCost.Unit || 'USD',
               });
             }
             const serviceData = serviceBreakdown.get(serviceName);
@@ -110,7 +110,7 @@ class CostExplorerService {
                   cost: 0,
                   usage: 0,
                   unit: serviceUnit,
-                  currency: group.Metrics.BlendedCost.Unit || 'USD'
+                  currency: group.Metrics.BlendedCost.Unit || 'USD',
                 });
               }
               const currentMonthData = currentMonthServiceBreakdown.get(serviceName);
@@ -130,7 +130,7 @@ class CostExplorerService {
         totalUsage: parseFloat(data.totalUsage.toFixed(4)),
         unit: data.unit,
         currency: data.currency,
-        percentage: totalCost > 0 ? parseFloat(((data.totalCost / totalCost) * 100).toFixed(2)) : 0
+        percentage: totalCost > 0 ? parseFloat(((data.totalCost / totalCost) * 100).toFixed(2)) : 0,
       }))
       .sort((a, b) => b.totalCost - a.totalCost);
 
@@ -140,7 +140,7 @@ class CostExplorerService {
         cost: parseFloat(data.cost.toFixed(4)),
         usage: parseFloat(data.usage.toFixed(4)),
         unit: data.unit,
-        currency: data.currency
+        currency: data.currency,
       }))
       .sort((a, b) => b.cost - a.cost);
 
@@ -150,7 +150,7 @@ class CostExplorerService {
       const date = new Date(day.TimePeriod.Start);
       const monthKey = `${date.getFullYear()}-${date.getMonth()}`;
       if (monthKey === currentMonth) {
-        const amount = day.Groups?.reduce((sum, group) => 
+        const amount = day.Groups?.reduce((sum, group) =>
           sum + parseFloat(group.Metrics.BlendedCost.Amount || '0'), 0) || 0;
         currentMonthCost += amount;
       }
@@ -168,7 +168,7 @@ class CostExplorerService {
       currency: results[0]?.Groups?.[0]?.Metrics?.BlendedCost?.Unit || 'USD',
       allServicesBreakdown,
       currentMonthServicesBreakdown,
-      months: months.size
+      months: months.size,
     };
   }
 }

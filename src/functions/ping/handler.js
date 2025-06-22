@@ -5,15 +5,15 @@ const { createSuccessResponse } = require('../../utils/responseUtils');
  * @param {Object} event - Lambda event object
  * @returns {Object} HTTP response
  */
-module.exports.pingHandler = async (event) => {
+module.exports.pingHandler = async(_event) => {
   const time = new Date();
   console.log(`[PingHandler] Ping function executed at ${time.toISOString()}`);
-  
+
   const responseData = {
     message: 'Ping received',
     timestamp: time.toISOString(),
     environment: process.env.NODE_ENV || 'development',
-    region: process.env.AWS_REGION || 'us-east-1'
+    region: process.env.AWS_REGION || 'us-east-1',
   };
 
   return createSuccessResponse(responseData);

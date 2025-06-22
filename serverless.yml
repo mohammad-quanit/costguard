@@ -35,16 +35,16 @@ provider:
           Resource: "*"
 
 functions:
-  pingHandler:
-    handler: src/functions/ping.run
-    events:
-      - eventBridge:
-          schedule: rate(5 minutes)
-          description: Ping the server every 5 minutes
-      - http:
-          path: ping
-          method: get
-          
+  # pingHandler:
+  #   handler: src/functions/ping.run
+  #   events:
+  #     - eventBridge:
+  #         schedule: rate(5 minutes)
+  #         description: Ping the server every 5 minutes
+  #     - http:
+  #         path: ping
+  #         method: get
+
   costAlert:
     handler: src/functions/CostAlert/index.costAlertHandler
     description: "Scheduled Lambda to check AWS cost and alert"
@@ -62,4 +62,4 @@ functions:
 
 package:
   patterns:
-    - '!node_modules/**'
+    - "!node_modules/**"

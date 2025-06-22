@@ -12,7 +12,7 @@ class ServiceBreakdownItem {
     totalUsage = 0,
     unit = '',
     currency = 'USD',
-    percentage = 0
+    percentage = 0,
   }) {
     this.serviceName = serviceName;
     this.totalCost = parseFloat(totalCost.toFixed(4));
@@ -32,7 +32,7 @@ class CurrentMonthServiceItem {
     cost = 0,
     usage = 0,
     unit = '',
-    currency = 'USD'
+    currency = 'USD',
   }) {
     this.serviceName = serviceName;
     this.cost = parseFloat(cost.toFixed(4));
@@ -52,7 +52,7 @@ class ServicesSummary {
     topServiceAllTime = 'N/A',
     topServiceCurrentMonth = 'N/A',
     topServiceCostAllTime = 0,
-    topServiceCostCurrentMonth = 0
+    topServiceCostCurrentMonth = 0,
   }) {
     this.totalServices = totalServices;
     this.currentMonthServices = currentMonthServices;
@@ -76,7 +76,7 @@ class Budget {
     isOverBudget = false,
     daysRemainingInMonth = 0,
     budgetSource = 'environment_variable',
-    monthlyHistory = []
+    monthlyHistory = [],
   }) {
     this.monthlyBudget = monthlyBudget;
     this.budgetUtilization = budgetUtilization;
@@ -104,7 +104,7 @@ class CostDataResponse {
     start = '',
     end = '',
     services = null,
-    budget = null
+    budget = null,
   }) {
     this.totalCost = totalCost;
     this.dailyAverage = dailyAverage;
@@ -127,20 +127,20 @@ class CostDataResponse {
   static createServicesObject(allServicesBreakdown, currentMonthServicesBreakdown) {
     const allPeriods = allServicesBreakdown.map(service => new ServiceBreakdownItem(service));
     const currentMonth = currentMonthServicesBreakdown.map(service => new CurrentMonthServiceItem(service));
-    
+
     const summary = new ServicesSummary({
       totalServices: allPeriods.length,
       currentMonthServices: currentMonth.length,
       topServiceAllTime: allPeriods[0]?.serviceName || 'N/A',
       topServiceCurrentMonth: currentMonth[0]?.serviceName || 'N/A',
       topServiceCostAllTime: allPeriods[0]?.totalCost || 0,
-      topServiceCostCurrentMonth: currentMonth[0]?.cost || 0
+      topServiceCostCurrentMonth: currentMonth[0]?.cost || 0,
     });
 
     return {
       allPeriods,
       currentMonth,
-      summary
+      summary,
     };
   }
 
@@ -187,7 +187,7 @@ class CostDataResponse {
     return {
       isValid: errors.length === 0,
       errors,
-      warnings
+      warnings,
     };
   }
 }
@@ -197,5 +197,5 @@ module.exports = {
   CurrentMonthServiceItem,
   ServicesSummary,
   Budget,
-  CostDataResponse
+  CostDataResponse,
 };

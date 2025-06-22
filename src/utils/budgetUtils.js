@@ -28,8 +28,12 @@ function calculateRemainingBudget(budget, currentCost) {
  * @returns {string} Budget status: 'over_budget', 'warning', or 'on_track'
  */
 function getBudgetStatus(utilizationPercent) {
-  if (utilizationPercent > 100) return 'over_budget';
-  if (utilizationPercent > 80) return 'warning';
+  if (utilizationPercent > 100) {
+    return 'over_budget';
+  }
+  if (utilizationPercent > 80) {
+    return 'warning';
+  }
   return 'on_track';
 }
 
@@ -76,7 +80,7 @@ function createBudgetMetrics({
   currentDay,
   daysInMonth,
   budgetSource,
-  monthlyHistory = []
+  monthlyHistory = [],
 }) {
   const budgetUtilization = calculateBudgetUtilization(currentMonthCost, effectiveBudget);
   const remainingBudget = calculateRemainingBudget(effectiveBudget, currentMonthCost);
@@ -93,7 +97,7 @@ function createBudgetMetrics({
     isOverBudget: budgetUtilization > 100,
     daysRemainingInMonth,
     budgetSource,
-    monthlyHistory
+    monthlyHistory,
   };
 }
 
@@ -104,5 +108,5 @@ module.exports = {
   calculateProjectedMonthlyCost,
   formatCurrency,
   calculatePercentage,
-  createBudgetMetrics
+  createBudgetMetrics,
 };

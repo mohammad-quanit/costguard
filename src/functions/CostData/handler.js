@@ -12,7 +12,7 @@ const MONTHLY_BUDGET = parseFloat(process.env.MONTHLY_BUDGET) || 0;
  * @param {Object} event - Lambda event object
  * @returns {Object} HTTP response with cost data
  */
-module.exports.GetCostAndUsageHandler = async (event) => {
+module.exports.GetCostAndUsageHandler = async(_event) => {
   console.log('[GetCostAndUsageHandler] Starting cost data retrieval');
 
   try {
@@ -55,7 +55,7 @@ module.exports.GetCostAndUsageHandler = async (event) => {
       currentDay,
       daysInMonth,
       budgetSource,
-      monthlyHistory: monthlyBudgetHistory
+      monthlyHistory: monthlyBudgetHistory,
     });
 
     // Log key metrics
@@ -63,7 +63,7 @@ module.exports.GetCostAndUsageHandler = async (event) => {
       '[GetCostAndUsageHandler] Budget Utilization:', budgetMetrics.budgetUtilization + '%',
       '| Remaining Budget:', budgetMetrics.remainingBudget,
       '| Budget Status:', budgetMetrics.budgetStatus,
-      '| Projected Monthly Cost:', budgetMetrics.projectedMonthlyCost
+      '| Projected Monthly Cost:', budgetMetrics.projectedMonthlyCost,
     );
 
     console.log(
@@ -71,7 +71,7 @@ module.exports.GetCostAndUsageHandler = async (event) => {
       '| Total Services (All Periods):', processedData.allServicesBreakdown.length,
       '| Current Month Services:', processedData.currentMonthServicesBreakdown.length,
       '| Top Service (All Time):', processedData.allServicesBreakdown[0]?.serviceName || 'N/A',
-      '| Top Service Cost (All Time):', processedData.allServicesBreakdown[0]?.totalCost || 0
+      '| Top Service Cost (All Time):', processedData.allServicesBreakdown[0]?.totalCost || 0,
     );
 
     // Create response data
@@ -86,9 +86,9 @@ module.exports.GetCostAndUsageHandler = async (event) => {
       end,
       services: CostDataResponse.createServicesObject(
         processedData.allServicesBreakdown,
-        processedData.currentMonthServicesBreakdown
+        processedData.currentMonthServicesBreakdown,
       ),
-      budget: budgetMetrics
+      budget: budgetMetrics,
     });
 
     // Validate response data
@@ -111,12 +111,12 @@ module.exports.GetCostAndUsageHandler = async (event) => {
       budget: {
         ...budgetMetrics,
         monthlyHistory: [],
-        monthlyHistoryError: 'Could not serialize monthly history data'
+        monthlyHistoryError: 'Could not serialize monthly history data',
       },
       services: {
         error: 'Could not serialize services breakdown data',
-        summary: responseData.services.summary
-      }
+        summary: responseData.services.summary,
+      },
     };
 
     return createSafeResponse(responseData, fallbackData);
@@ -128,8 +128,8 @@ module.exports.GetCostAndUsageHandler = async (event) => {
       500,
       {
         message: error.message,
-        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
-      }
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
+      },
     );
   }
 };
