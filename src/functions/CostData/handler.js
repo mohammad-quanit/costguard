@@ -4,18 +4,29 @@ const { createBudgetMetrics, formatCurrency } = require('../../utils/budgetUtils
 const { getCurrentDayOfMonth, getDaysInCurrentMonth } = require('../../utils/dateUtils');
 const { createSafeResponse, createErrorResponse, logResponse } = require('../../utils/responseUtils');
 const { CostDataResponse } = require('../../models/costDataModel');
+const { withAuth } = require('../../utils/authMiddleware');
 
 const MONTHLY_BUDGET = parseFloat(process.env.MONTHLY_BUDGET) || 0;
 
 /**
  * AWS Lambda handler for getting cost and usage data with service breakdown
- * @param {Object} event - Lambda event object
+ * @param {Object} event - Lambda event object (includes user context from auth middleware)
  * @returns {Object} HTTP response with cost data
  */
-module.exports.GetCostAndUsageHandler = async(_event) => {
-  console.log('[GetCostAndUsageHandler] Starting cost data retrieval');
+const getCostDataHandler = async(event) => {
+  console.log('[GetCostAndUsageHandler] Starting cost data retrieval for user:', event.user?.email);
 
   try {
+    // Get user's cost settings
+    const userCostSettings = event.user?.costSettings || {};
+    const userMonthlyBudget = userCostSettings.monthlyBudget || MONTHLY_BUDGET;
+
+    console.log('[GetCostAndUsageHandler] User budget settings:', {
+      monthlyBudget: userMonthlyBudget,
+      alertThreshold: userCostSettings.alertThreshold,
+      currency: event.user?.preferences?.currency || 'USD',
+    });
+
     // Initialize services
     const costExplorerService = new CostExplorerService();
     const budgetsService = new BudgetsService();
@@ -43,11 +54,11 @@ module.exports.GetCostAndUsageHandler = async(_event) => {
       // Continue without budget data
     }
 
-    // Calculate budget metrics
-    const effectiveBudget = budgetsService.getEffectiveBudget(budgets, MONTHLY_BUDGET);
+    // Calculate budget metrics using user's budget settings
+    const effectiveBudget = budgetsService.getEffectiveBudget(budgets, userMonthlyBudget);
     const currentDay = getCurrentDayOfMonth();
     const daysInMonth = getDaysInCurrentMonth();
-    const budgetSource = budgets.length > 0 ? 'aws_budgets' : 'environment_variable';
+    const budgetSource = budgets.length > 0 ? 'aws_budgets' : 'user_settings';
 
     const budgetMetrics = createBudgetMetrics({
       effectiveBudget,
@@ -56,6 +67,7 @@ module.exports.GetCostAndUsageHandler = async(_event) => {
       daysInMonth,
       budgetSource,
       monthlyHistory: monthlyBudgetHistory,
+      alertThreshold: userCostSettings.alertThreshold || 80,
     });
 
     // Log key metrics
@@ -64,6 +76,7 @@ module.exports.GetCostAndUsageHandler = async(_event) => {
       '| Remaining Budget:', budgetMetrics.remainingBudget,
       '| Budget Status:', budgetMetrics.budgetStatus,
       '| Projected Monthly Cost:', budgetMetrics.projectedMonthlyCost,
+      '| User:', event.user?.email,
     );
 
     console.log(
@@ -81,7 +94,7 @@ module.exports.GetCostAndUsageHandler = async(_event) => {
       averageMonthlyCost: formatCurrency(processedData.averageMonthlyCost),
       currentMonthCost: formatCurrency(processedData.currentMonthCost),
       serviceCount: processedData.serviceCount,
-      currency: processedData.currency,
+      currency: event.user?.preferences?.currency || processedData.currency,
       start,
       end,
       services: CostDataResponse.createServicesObject(
@@ -89,6 +102,11 @@ module.exports.GetCostAndUsageHandler = async(_event) => {
         processedData.currentMonthServicesBreakdown,
       ),
       budget: budgetMetrics,
+      user: {
+        userId: event.user?.userId,
+        email: event.user?.email,
+        costSettings: userCostSettings,
+      },
     });
 
     // Validate response data
@@ -133,3 +151,6 @@ module.exports.GetCostAndUsageHandler = async(_event) => {
     );
   }
 };
+
+// Export the handler wrapped with authentication middleware
+module.exports.GetCostAndUsageHandler = withAuth(getCostDataHandler);

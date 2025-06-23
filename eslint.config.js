@@ -35,7 +35,7 @@ module.exports = [
       'brace-style': ['error', '1tbs'],
       'comma-dangle': ['error', 'always-multiline'],
       'indent': ['error', 2],
-      'quotes': ['error', 'single'],
+      // 'quotes': ['error', 'single'],
       'semi': ['error', 'always'],
       'no-trailing-spaces': 'error',
       'eol-last': 'error',

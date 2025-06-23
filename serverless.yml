@@ -14,6 +14,10 @@ provider:
     DAILY_THRESHOLD_PERCENT: ${env:DAILY_THRESHOLD_PERCENT}
     MONTHLY_BUDGET: ${env:MONTHLY_BUDGET}
     AWS_ACCOUNT_ID: ${env:AWS_ACCOUNT_ID, ""}
+    USER_POOL_ID: !Ref CostGuardUserPool
+    USER_POOL_CLIENT_ID: !Ref CostGuardUserPoolClient
+    USERS_TABLE: !Ref UsersTable
+    JWT_SECRET: ${env:JWT_SECRET, "your-jwt-secret-key"}
   iam:
     role:
       statements:
@@ -33,18 +37,76 @@ provider:
           Action:
             - sts:GetCallerIdentity
           Resource: "*"
+        - Effect: Allow
+          Action:
+            - cognito-idp:AdminCreateUser
+            - cognito-idp:AdminSetUserPassword
+            - cognito-idp:AdminInitiateAuth
+            - cognito-idp:AdminGetUser
+            - cognito-idp:AdminUpdateUserAttributes
+            - cognito-idp:AdminDeleteUser
+            - cognito-idp:ListUsers
+          Resource: !GetAtt CostGuardUserPool.Arn
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+          Resource:
+            - !GetAtt UsersTable.Arn
+            - !Sub "${UsersTable.Arn}/index/*"
 
 functions:
-  # pingHandler:
-  #   handler: src/functions/ping.run
-  #   events:
-  #     - eventBridge:
-  #         schedule: rate(5 minutes)
-  #         description: Ping the server every 5 minutes
-  #     - http:
-  #         path: ping
-  #         method: get
+  # Authentication Functions
+  signUp:
+    handler: src/functions/Auth/signUp.handler
+    description: "User registration with Cognito"
+    events:
+      - http:
+          path: auth/signup
+          method: post
+          cors: true
 
+  signIn:
+    handler: src/functions/Auth/signIn.handler
+    description: "User login with Cognito"
+    events:
+      - http:
+          path: auth/signin
+          method: post
+          cors: true
+
+  refreshToken:
+    handler: src/functions/Auth/refreshToken.handler
+    description: "Refresh JWT token"
+    events:
+      - http:
+          path: auth/refresh
+          method: post
+          cors: true
+
+  getUserProfile:
+    handler: src/functions/Auth/getUserProfile.handler
+    description: "Get user profile information"
+    events:
+      - http:
+          path: auth/profile
+          method: get
+          cors: true
+
+  updateUserProfile:
+    handler: src/functions/Auth/updateUserProfile.handler
+    description: "Update user profile information"
+    events:
+      - http:
+          path: auth/profile
+          method: put
+          cors: true
+
+  # Existing Functions (now protected)
   costAlert:
     handler: src/functions/CostAlert/index.costAlertHandler
     description: "Scheduled Lambda to check AWS cost and alert"
@@ -53,13 +115,128 @@ functions:
 
   getCostData:
     handler: src/functions/CostData/index.GetCostAndUsageHandler
-    description: "Optional: API to fetch cost data from DynamoDB"
+    description: "API to fetch cost data from DynamoDB (protected)"
     events:
       - http:
           path: cost-usage
           method: get
           cors: true
 
-package:
-  patterns:
-    - "!node_modules/**"
+resources:
+  Resources:
+    # Cognito User Pool
+    CostGuardUserPool:
+      Type: AWS::Cognito::UserPool
+      Properties:
+        UserPoolName: ${self:service}-user-pool-${sls:stage}
+        UsernameAttributes:
+          - email
+        AutoVerifiedAttributes:
+          - email
+        Policies:
+          PasswordPolicy:
+            MinimumLength: 8
+            RequireUppercase: true
+            RequireLowercase: true
+            RequireNumbers: true
+            RequireSymbols: true
+        Schema:
+          - Name: email
+            AttributeDataType: String
+            Required: true
+            Mutable: true
+          - Name: given_name
+            AttributeDataType: String
+            Required: true
+            Mutable: true
+          - Name: family_name
+            AttributeDataType: String
+            Required: true
+            Mutable: true
+        EmailConfiguration:
+          EmailSendingAccount: COGNITO_DEFAULT
+
+    # Cognito User Pool Client
+    CostGuardUserPoolClient:
+      Type: AWS::Cognito::UserPoolClient
+      Properties:
+        ClientName: ${self:service}-user-pool-client-${sls:stage}
+        UserPoolId: !Ref CostGuardUserPool
+        GenerateSecret: false
+        ExplicitAuthFlows:
+          - ALLOW_ADMIN_USER_PASSWORD_AUTH
+          - ALLOW_USER_PASSWORD_AUTH
+          - ALLOW_REFRESH_TOKEN_AUTH
+        AccessTokenValidity: 24
+        IdTokenValidity: 24
+        RefreshTokenValidity: 30
+        TokenValidityUnits:
+          AccessToken: hours
+          IdToken: hours
+          RefreshToken: days
+
+    # DynamoDB Users Table
+    UsersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:service}-users-${sls:stage}
+        AttributeDefinitions:
+          - AttributeName: userId
+            AttributeType: S
+          - AttributeName: email
+            AttributeType: S
+        KeySchema:
+          - AttributeName: userId
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: EmailIndex
+            KeySchema:
+              - AttributeName: email
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+            ProvisionedThroughput:
+              ReadCapacityUnits: 5
+              WriteCapacityUnits: 5
+        BillingMode: PROVISIONED
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5
+        StreamSpecification:
+          StreamViewType: NEW_AND_OLD_IMAGES
+
+  Outputs:
+    UserPoolId:
+      Value: !Ref CostGuardUserPool
+      Export:
+        Name: ${self:service}-user-pool-id-${sls:stage}
+
+    UserPoolClientId:
+      Value: !Ref CostGuardUserPoolClient
+      Export:
+        Name: ${self:service}-user-pool-client-id-${sls:stage}
+
+    UsersTableName:
+      Value: !Ref UsersTable
+      Export:
+        Name: ${self:service}-users-table-${sls:stage}
+
+plugins:
+  - serverless-plugin-common-excludes # this should go before serverless-plugin-include-dependencies
+  - serverless-plugin-include-dependencies
+# package:
+#   individually: true
+#   patterns:
+#     - "!.git/**"
+#     - "!.vscode/**"
+#     - "!tests/**"
+#     - "!docs/**"
+#     - "!*.md"
+#     - "!.env"
+#     - "!.gitignore"
+#     - "!test-auth.js"
+#     - "!node_modules/**"
+#     - "!.serverless/**"
+#     - "!coverage/**"
+#     - "!jest.config.js"
+#     - "!eslint.config.js"

@@ -13,7 +13,17 @@
         "COST_ALERT_TABLE": "your-dynamodb-table-name",
         "DAILY_THRESHOLD_PERCENT": "50",
         "MONTHLY_BUDGET": "50",
-        "AWS_ACCOUNT_ID": ""
+        "AWS_ACCOUNT_ID": "",
+        "USER_POOL_ID": {
+          "Ref": "CostGuardUserPool"
+        },
+        "USER_POOL_CLIENT_ID": {
+          "Ref": "CostGuardUserPoolClient"
+        },
+        "USERS_TABLE": {
+          "Ref": "UsersTable"
+        },
+        "JWT_SECRET": "your-super-secret-jwt-key-change-this-in-production"
       },
       "iam": {
         "role": {
@@ -42,6 +52,46 @@
                 "sts:GetCallerIdentity"
               ],
               "Resource": "*"
+            },
+            {
+              "Effect": "Allow",
+              "Action": [
+                "cognito-idp:AdminCreateUser",
+                "cognito-idp:AdminSetUserPassword",
+                "cognito-idp:AdminInitiateAuth",
+                "cognito-idp:AdminGetUser",
+                "cognito-idp:AdminUpdateUserAttributes",
+                "cognito-idp:AdminDeleteUser",
+                "cognito-idp:ListUsers"
+              ],
+              "Resource": {
+                "Fn::GetAtt": [
+                  "CostGuardUserPool",
+                  "Arn"
+                ]
+              }
+            },
+            {
+              "Effect": "Allow",
+              "Action": [
+                "dynamodb:Query",
+                "dynamodb:Scan",
+                "dynamodb:GetItem",
+                "dynamodb:PutItem",
+                "dynamodb:UpdateItem",
+                "dynamodb:DeleteItem"
+              ],
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "UsersTable",
+                    "Arn"
+                  ]
+                },
+                {
+                  "Fn::Sub": "${UsersTable.Arn}/index/*"
+                }
+              ]
             }
           ]
         }
@@ -52,6 +102,36 @@
         "AWSTemplateFormatVersion": "2010-09-09",
         "Description": "The AWS CloudFormation template for this Serverless application",
         "Resources": {
+          "SignUpLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/CostGuard-dev-signUp"
+            }
+          },
+          "SignInLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/CostGuard-dev-signIn"
+            }
+          },
+          "RefreshTokenLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/CostGuard-dev-refreshToken"
+            }
+          },
+          "GetUserProfileLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/CostGuard-dev-getUserProfile"
+            }
+          },
+          "UpdateUserProfileLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/CostGuard-dev-updateUserProfile"
+            }
+          },
           "CostAlertLogGroup": {
             "Type": "AWS::Logs::LogGroup",
             "Properties": {
@@ -130,6 +210,12 @@
                       },
                       {
                         "$ref": "$[\"service\"][\"provider\"][\"iam\"][\"role\"][\"statements\"][2]"
+                      },
+                      {
+                        "$ref": "$[\"service\"][\"provider\"][\"iam\"][\"role\"][\"statements\"][3]"
+                      },
+                      {
+                        "$ref": "$[\"service\"][\"provider\"][\"iam\"][\"role\"][\"statements\"][4]"
                       }
                     ]
                   }
@@ -151,12 +237,227 @@
               }
             }
           },
+          "SignUpLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": "serverless-framework-deployments-us-east-1-de0c9720-9574",
+                "S3Key": "serverless/CostGuard/dev/1750712175020-2025-06-23T20:56:15.020Z/CostGuard.zip"
+              },
+              "Handler": "src/functions/Auth/signUp.handler",
+              "Runtime": "nodejs22.x",
+              "FunctionName": "CostGuard-dev-signUp",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Description": "User registration with Cognito",
+              "Environment": {
+                "Variables": {
+                  "COST_ALERT_TOPIC": "your-sns-topic-arn",
+                  "COST_ALERT_TABLE": "your-dynamodb-table-name",
+                  "DAILY_THRESHOLD_PERCENT": "50",
+                  "MONTHLY_BUDGET": "50",
+                  "AWS_ACCOUNT_ID": "",
+                  "USER_POOL_ID": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"USER_POOL_ID\"]"
+                  },
+                  "USER_POOL_CLIENT_ID": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"USER_POOL_CLIENT_ID\"]"
+                  },
+                  "USERS_TABLE": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"USERS_TABLE\"]"
+                  },
+                  "JWT_SECRET": "your-super-secret-jwt-key-change-this-in-production"
+                }
+              },
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "SignUpLogGroup"
+            ]
+          },
+          "SignInLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": "serverless-framework-deployments-us-east-1-de0c9720-9574",
+                "S3Key": "serverless/CostGuard/dev/1750712175020-2025-06-23T20:56:15.020Z/CostGuard.zip"
+              },
+              "Handler": "src/functions/Auth/signIn.handler",
+              "Runtime": "nodejs22.x",
+              "FunctionName": "CostGuard-dev-signIn",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Description": "User login with Cognito",
+              "Environment": {
+                "Variables": {
+                  "COST_ALERT_TOPIC": "your-sns-topic-arn",
+                  "COST_ALERT_TABLE": "your-dynamodb-table-name",
+                  "DAILY_THRESHOLD_PERCENT": "50",
+                  "MONTHLY_BUDGET": "50",
+                  "AWS_ACCOUNT_ID": "",
+                  "USER_POOL_ID": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"USER_POOL_ID\"]"
+                  },
+                  "USER_POOL_CLIENT_ID": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"USER_POOL_CLIENT_ID\"]"
+                  },
+                  "USERS_TABLE": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"USERS_TABLE\"]"
+                  },
+                  "JWT_SECRET": "your-super-secret-jwt-key-change-this-in-production"
+                }
+              },
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "SignInLogGroup"
+            ]
+          },
+          "RefreshTokenLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": "serverless-framework-deployments-us-east-1-de0c9720-9574",
+                "S3Key": "serverless/CostGuard/dev/1750712175020-2025-06-23T20:56:15.020Z/CostGuard.zip"
+              },
+              "Handler": "src/functions/Auth/refreshToken.handler",
+              "Runtime": "nodejs22.x",
+              "FunctionName": "CostGuard-dev-refreshToken",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Description": "Refresh JWT token",
+              "Environment": {
+                "Variables": {
+                  "COST_ALERT_TOPIC": "your-sns-topic-arn",
+                  "COST_ALERT_TABLE": "your-dynamodb-table-name",
+                  "DAILY_THRESHOLD_PERCENT": "50",
+                  "MONTHLY_BUDGET": "50",
+                  "AWS_ACCOUNT_ID": "",
+                  "USER_POOL_ID": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"USER_POOL_ID\"]"
+                  },
+                  "USER_POOL_CLIENT_ID": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"USER_POOL_CLIENT_ID\"]"
+                  },
+                  "USERS_TABLE": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"USERS_TABLE\"]"
+                  },
+                  "JWT_SECRET": "your-super-secret-jwt-key-change-this-in-production"
+                }
+              },
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "RefreshTokenLogGroup"
+            ]
+          },
+          "GetUserProfileLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": "serverless-framework-deployments-us-east-1-de0c9720-9574",
+                "S3Key": "serverless/CostGuard/dev/1750712175020-2025-06-23T20:56:15.020Z/CostGuard.zip"
+              },
+              "Handler": "src/functions/Auth/getUserProfile.handler",
+              "Runtime": "nodejs22.x",
+              "FunctionName": "CostGuard-dev-getUserProfile",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Description": "Get user profile information",
+              "Environment": {
+                "Variables": {
+                  "COST_ALERT_TOPIC": "your-sns-topic-arn",
+                  "COST_ALERT_TABLE": "your-dynamodb-table-name",
+                  "DAILY_THRESHOLD_PERCENT": "50",
+                  "MONTHLY_BUDGET": "50",
+                  "AWS_ACCOUNT_ID": "",
+                  "USER_POOL_ID": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"USER_POOL_ID\"]"
+                  },
+                  "USER_POOL_CLIENT_ID": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"USER_POOL_CLIENT_ID\"]"
+                  },
+                  "USERS_TABLE": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"USERS_TABLE\"]"
+                  },
+                  "JWT_SECRET": "your-super-secret-jwt-key-change-this-in-production"
+                }
+              },
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "GetUserProfileLogGroup"
+            ]
+          },
+          "UpdateUserProfileLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": "serverless-framework-deployments-us-east-1-de0c9720-9574",
+                "S3Key": "serverless/CostGuard/dev/1750712175020-2025-06-23T20:56:15.020Z/CostGuard.zip"
+              },
+              "Handler": "src/functions/Auth/updateUserProfile.handler",
+              "Runtime": "nodejs22.x",
+              "FunctionName": "CostGuard-dev-updateUserProfile",
+              "MemorySize": 1024,
+              "Timeout": 6,
+              "Description": "Update user profile information",
+              "Environment": {
+                "Variables": {
+                  "COST_ALERT_TOPIC": "your-sns-topic-arn",
+                  "COST_ALERT_TABLE": "your-dynamodb-table-name",
+                  "DAILY_THRESHOLD_PERCENT": "50",
+                  "MONTHLY_BUDGET": "50",
+                  "AWS_ACCOUNT_ID": "",
+                  "USER_POOL_ID": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"USER_POOL_ID\"]"
+                  },
+                  "USER_POOL_CLIENT_ID": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"USER_POOL_CLIENT_ID\"]"
+                  },
+                  "USERS_TABLE": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"USERS_TABLE\"]"
+                  },
+                  "JWT_SECRET": "your-super-secret-jwt-key-change-this-in-production"
+                }
+              },
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "UpdateUserProfileLogGroup"
+            ]
+          },
           "CostAlertLambdaFunction": {
             "Type": "AWS::Lambda::Function",
             "Properties": {
               "Code": {
                 "S3Bucket": "serverless-framework-deployments-us-east-1-de0c9720-9574",
-                "S3Key": "serverless/CostGuard/dev/1750624347132-2025-06-22T20:32:27.132Z/CostGuard.zip"
+                "S3Key": "serverless/CostGuard/dev/1750712175020-2025-06-23T20:56:15.020Z/CostGuard.zip"
               },
               "Handler": "src/functions/CostAlert/index.costAlertHandler",
               "Runtime": "nodejs22.x",
@@ -170,7 +471,17 @@
                   "COST_ALERT_TABLE": "your-dynamodb-table-name",
                   "DAILY_THRESHOLD_PERCENT": "50",
                   "MONTHLY_BUDGET": "50",
-                  "AWS_ACCOUNT_ID": ""
+                  "AWS_ACCOUNT_ID": "",
+                  "USER_POOL_ID": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"USER_POOL_ID\"]"
+                  },
+                  "USER_POOL_CLIENT_ID": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"USER_POOL_CLIENT_ID\"]"
+                  },
+                  "USERS_TABLE": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"USERS_TABLE\"]"
+                  },
+                  "JWT_SECRET": "your-super-secret-jwt-key-change-this-in-production"
                 }
               },
               "Role": {
@@ -189,21 +500,31 @@
             "Properties": {
               "Code": {
                 "S3Bucket": "serverless-framework-deployments-us-east-1-de0c9720-9574",
-                "S3Key": "serverless/CostGuard/dev/1750624347132-2025-06-22T20:32:27.132Z/CostGuard.zip"
+                "S3Key": "serverless/CostGuard/dev/1750712175020-2025-06-23T20:56:15.020Z/CostGuard.zip"
               },
               "Handler": "src/functions/CostData/index.GetCostAndUsageHandler",
               "Runtime": "nodejs22.x",
               "FunctionName": "CostGuard-dev-getCostData",
               "MemorySize": 1024,
               "Timeout": 6,
-              "Description": "Optional: API to fetch cost data from DynamoDB",
+              "Description": "API to fetch cost data from DynamoDB (protected)",
               "Environment": {
                 "Variables": {
                   "COST_ALERT_TOPIC": "your-sns-topic-arn",
                   "COST_ALERT_TABLE": "your-dynamodb-table-name",
                   "DAILY_THRESHOLD_PERCENT": "50",
                   "MONTHLY_BUDGET": "50",
-                  "AWS_ACCOUNT_ID": ""
+                  "AWS_ACCOUNT_ID": "",
+                  "USER_POOL_ID": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"USER_POOL_ID\"]"
+                  },
+                  "USER_POOL_CLIENT_ID": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"USER_POOL_CLIENT_ID\"]"
+                  },
+                  "USERS_TABLE": {
+                    "$ref": "$[\"service\"][\"provider\"][\"environment\"][\"USERS_TABLE\"]"
+                  },
+                  "JWT_SECRET": "your-super-secret-jwt-key-change-this-in-production"
                 }
               },
               "Role": {
@@ -217,26 +538,81 @@
               "GetCostDataLogGroup"
             ]
           },
-          "CostAlertLambdaVersionaxNCSPwBjA2nyQeoZbO463r2HToOyDjHx0j1Dac3HWA": {
+          "SignUpLambdaVersion8VjVTsqYtjJ6djLaPLPUO4cytXT1uR8OcgAPVAA": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "SignUpLambdaFunction"
+              },
+              "CodeSha256": "Ja/HCaI8JaIfcpYtDWeFPleNozXx+zNUHlZhvJ5SQSM=",
+              "Description": "User registration with Cognito"
+            }
+          },
+          "SignInLambdaVersionYemxSl4jdZqpkKxnUB8SikfCBRLbR4S2i6EMP62bxSY": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "SignInLambdaFunction"
+              },
+              "CodeSha256": "Ja/HCaI8JaIfcpYtDWeFPleNozXx+zNUHlZhvJ5SQSM=",
+              "Description": "User login with Cognito"
+            }
+          },
+          "RefreshTokenLambdaVersionz2ul24dID5mSc1f6Un9c1ZNTY20j6eUCU30DPj2cw": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "RefreshTokenLambdaFunction"
+              },
+              "CodeSha256": "Ja/HCaI8JaIfcpYtDWeFPleNozXx+zNUHlZhvJ5SQSM=",
+              "Description": "Refresh JWT token"
+            }
+          },
+          "GetUserProfileLambdaVersion5AE8YxBIslfEgm2nbTxMfffr8242CvuzMQVzNoIWCA": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "GetUserProfileLambdaFunction"
+              },
+              "CodeSha256": "Ja/HCaI8JaIfcpYtDWeFPleNozXx+zNUHlZhvJ5SQSM=",
+              "Description": "Get user profile information"
+            }
+          },
+          "UpdateUserProfileLambdaVersionESTWfTMLFyWLgnu9M0OOtqAAEMIhX5CgsB31cCdI": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "UpdateUserProfileLambdaFunction"
+              },
+              "CodeSha256": "Ja/HCaI8JaIfcpYtDWeFPleNozXx+zNUHlZhvJ5SQSM=",
+              "Description": "Update user profile information"
+            }
+          },
+          "CostAlertLambdaVersion4Wu2SP3HtcIOt7dpHP0gsyGkfs7W702aNMdbExhZHtA": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "CostAlertLambdaFunction"
               },
-              "CodeSha256": "9IlPjLLVHvmtb+X3ee6ftzJxNCTBwMycN7SYdySmJBM=",
+              "CodeSha256": "Ja/HCaI8JaIfcpYtDWeFPleNozXx+zNUHlZhvJ5SQSM=",
               "Description": "Scheduled Lambda to check AWS cost and alert"
             }
           },
-          "GetCostDataLambdaVersionUazqVZsxqkSYgYE0Shn9ay26aiq2S98R0iUOs4fcrVo": {
+          "GetCostDataLambdaVersionDAqeDHD4IIOMlmJtCLxwdc7VNk36GylsqaXwrAsfUZ8": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "GetCostDataLambdaFunction"
               },
-              "CodeSha256": "9IlPjLLVHvmtb+X3ee6ftzJxNCTBwMycN7SYdySmJBM=",
-              "Description": "Optional: API to fetch cost data from DynamoDB"
+              "CodeSha256": "Ja/HCaI8JaIfcpYtDWeFPleNozXx+zNUHlZhvJ5SQSM=",
+              "Description": "API to fetch cost data from DynamoDB (protected)"
             }
           },
           "CostAlertEventsRuleSchedule1": {
@@ -288,6 +664,69 @@
               "Policy": ""
             }
           },
+          "ApiGatewayResourceAuth": {
+            "Type": "AWS::ApiGateway::Resource",
+            "Properties": {
+              "ParentId": {
+                "Fn::GetAtt": [
+                  "ApiGatewayRestApi",
+                  "RootResourceId"
+                ]
+              },
+              "PathPart": "auth",
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
+          "ApiGatewayResourceAuthSignup": {
+            "Type": "AWS::ApiGateway::Resource",
+            "Properties": {
+              "ParentId": {
+                "Ref": "ApiGatewayResourceAuth"
+              },
+              "PathPart": "signup",
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
+          "ApiGatewayResourceAuthSignin": {
+            "Type": "AWS::ApiGateway::Resource",
+            "Properties": {
+              "ParentId": {
+                "Ref": "ApiGatewayResourceAuth"
+              },
+              "PathPart": "signin",
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
+          "ApiGatewayResourceAuthRefresh": {
+            "Type": "AWS::ApiGateway::Resource",
+            "Properties": {
+              "ParentId": {
+                "Ref": "ApiGatewayResourceAuth"
+              },
+              "PathPart": "refresh",
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
+          "ApiGatewayResourceAuthProfile": {
+            "Type": "AWS::ApiGateway::Resource",
+            "Properties": {
+              "ParentId": {
+                "Ref": "ApiGatewayResourceAuth"
+              },
+              "PathPart": "profile",
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
           "ApiGatewayResourceCostDashusage": {
             "Type": "AWS::ApiGateway::Resource",
             "Properties": {
@@ -298,6 +737,186 @@
                 ]
               },
               "PathPart": "cost-usage",
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
+          "ApiGatewayMethodAuthSignupOptions": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "AuthorizationType": "NONE",
+              "HttpMethod": "OPTIONS",
+              "MethodResponses": [
+                {
+                  "StatusCode": "200",
+                  "ResponseParameters": {
+                    "method.response.header.Access-Control-Allow-Origin": true,
+                    "method.response.header.Access-Control-Allow-Headers": true,
+                    "method.response.header.Access-Control-Allow-Methods": true
+                  },
+                  "ResponseModels": {}
+                }
+              ],
+              "RequestParameters": {},
+              "Integration": {
+                "Type": "MOCK",
+                "RequestTemplates": {
+                  "application/json": "{statusCode:200}"
+                },
+                "ContentHandling": "CONVERT_TO_TEXT",
+                "IntegrationResponses": [
+                  {
+                    "StatusCode": "200",
+                    "ResponseParameters": {
+                      "method.response.header.Access-Control-Allow-Origin": "'*'",
+                      "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent,X-Amzn-Trace-Id'",
+                      "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,POST'"
+                    },
+                    "ResponseTemplates": {
+                      "application/json": ""
+                    }
+                  }
+                ]
+              },
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceAuthSignup"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
+          "ApiGatewayMethodAuthSigninOptions": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "AuthorizationType": "NONE",
+              "HttpMethod": "OPTIONS",
+              "MethodResponses": [
+                {
+                  "StatusCode": "200",
+                  "ResponseParameters": {
+                    "method.response.header.Access-Control-Allow-Origin": true,
+                    "method.response.header.Access-Control-Allow-Headers": true,
+                    "method.response.header.Access-Control-Allow-Methods": true
+                  },
+                  "ResponseModels": {}
+                }
+              ],
+              "RequestParameters": {},
+              "Integration": {
+                "Type": "MOCK",
+                "RequestTemplates": {
+                  "application/json": "{statusCode:200}"
+                },
+                "ContentHandling": "CONVERT_TO_TEXT",
+                "IntegrationResponses": [
+                  {
+                    "StatusCode": "200",
+                    "ResponseParameters": {
+                      "method.response.header.Access-Control-Allow-Origin": "'*'",
+                      "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent,X-Amzn-Trace-Id'",
+                      "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,POST'"
+                    },
+                    "ResponseTemplates": {
+                      "application/json": ""
+                    }
+                  }
+                ]
+              },
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceAuthSignin"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
+          "ApiGatewayMethodAuthRefreshOptions": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "AuthorizationType": "NONE",
+              "HttpMethod": "OPTIONS",
+              "MethodResponses": [
+                {
+                  "StatusCode": "200",
+                  "ResponseParameters": {
+                    "method.response.header.Access-Control-Allow-Origin": true,
+                    "method.response.header.Access-Control-Allow-Headers": true,
+                    "method.response.header.Access-Control-Allow-Methods": true
+                  },
+                  "ResponseModels": {}
+                }
+              ],
+              "RequestParameters": {},
+              "Integration": {
+                "Type": "MOCK",
+                "RequestTemplates": {
+                  "application/json": "{statusCode:200}"
+                },
+                "ContentHandling": "CONVERT_TO_TEXT",
+                "IntegrationResponses": [
+                  {
+                    "StatusCode": "200",
+                    "ResponseParameters": {
+                      "method.response.header.Access-Control-Allow-Origin": "'*'",
+                      "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent,X-Amzn-Trace-Id'",
+                      "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,POST'"
+                    },
+                    "ResponseTemplates": {
+                      "application/json": ""
+                    }
+                  }
+                ]
+              },
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceAuthRefresh"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              }
+            }
+          },
+          "ApiGatewayMethodAuthProfileOptions": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "AuthorizationType": "NONE",
+              "HttpMethod": "OPTIONS",
+              "MethodResponses": [
+                {
+                  "StatusCode": "200",
+                  "ResponseParameters": {
+                    "method.response.header.Access-Control-Allow-Origin": true,
+                    "method.response.header.Access-Control-Allow-Headers": true,
+                    "method.response.header.Access-Control-Allow-Methods": true
+                  },
+                  "ResponseModels": {}
+                }
+              ],
+              "RequestParameters": {},
+              "Integration": {
+                "Type": "MOCK",
+                "RequestTemplates": {
+                  "application/json": "{statusCode:200}"
+                },
+                "ContentHandling": "CONVERT_TO_TEXT",
+                "IntegrationResponses": [
+                  {
+                    "StatusCode": "200",
+                    "ResponseParameters": {
+                      "method.response.header.Access-Control-Allow-Origin": "'*'",
+                      "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent,X-Amzn-Trace-Id'",
+                      "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,PUT,GET'"
+                    },
+                    "ResponseTemplates": {
+                      "application/json": ""
+                    }
+                  }
+                ]
+              },
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceAuthProfile"
+              },
               "RestApiId": {
                 "Ref": "ApiGatewayRestApi"
               }
@@ -348,6 +967,236 @@
               }
             }
           },
+          "ApiGatewayMethodAuthSignupPost": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "HttpMethod": "POST",
+              "RequestParameters": {},
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceAuthSignup"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "ApiKeyRequired": false,
+              "AuthorizationType": "NONE",
+              "Integration": {
+                "IntegrationHttpMethod": "POST",
+                "Type": "AWS_PROXY",
+                "Uri": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":apigateway:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":lambda:path/2015-03-31/functions/",
+                      {
+                        "Fn::GetAtt": [
+                          "SignUpLambdaFunction",
+                          "Arn"
+                        ]
+                      },
+                      "/invocations"
+                    ]
+                  ]
+                }
+              },
+              "MethodResponses": []
+            },
+            "DependsOn": [
+              "SignUpLambdaPermissionApiGateway"
+            ]
+          },
+          "ApiGatewayMethodAuthSigninPost": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "HttpMethod": "POST",
+              "RequestParameters": {},
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceAuthSignin"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "ApiKeyRequired": false,
+              "AuthorizationType": "NONE",
+              "Integration": {
+                "IntegrationHttpMethod": "POST",
+                "Type": "AWS_PROXY",
+                "Uri": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":apigateway:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":lambda:path/2015-03-31/functions/",
+                      {
+                        "Fn::GetAtt": [
+                          "SignInLambdaFunction",
+                          "Arn"
+                        ]
+                      },
+                      "/invocations"
+                    ]
+                  ]
+                }
+              },
+              "MethodResponses": []
+            },
+            "DependsOn": [
+              "SignInLambdaPermissionApiGateway"
+            ]
+          },
+          "ApiGatewayMethodAuthRefreshPost": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "HttpMethod": "POST",
+              "RequestParameters": {},
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceAuthRefresh"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "ApiKeyRequired": false,
+              "AuthorizationType": "NONE",
+              "Integration": {
+                "IntegrationHttpMethod": "POST",
+                "Type": "AWS_PROXY",
+                "Uri": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":apigateway:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":lambda:path/2015-03-31/functions/",
+                      {
+                        "Fn::GetAtt": [
+                          "RefreshTokenLambdaFunction",
+                          "Arn"
+                        ]
+                      },
+                      "/invocations"
+                    ]
+                  ]
+                }
+              },
+              "MethodResponses": []
+            },
+            "DependsOn": [
+              "RefreshTokenLambdaPermissionApiGateway"
+            ]
+          },
+          "ApiGatewayMethodAuthProfileGet": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "HttpMethod": "GET",
+              "RequestParameters": {},
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceAuthProfile"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "ApiKeyRequired": false,
+              "AuthorizationType": "NONE",
+              "Integration": {
+                "IntegrationHttpMethod": "POST",
+                "Type": "AWS_PROXY",
+                "Uri": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":apigateway:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":lambda:path/2015-03-31/functions/",
+                      {
+                        "Fn::GetAtt": [
+                          "GetUserProfileLambdaFunction",
+                          "Arn"
+                        ]
+                      },
+                      "/invocations"
+                    ]
+                  ]
+                }
+              },
+              "MethodResponses": []
+            },
+            "DependsOn": [
+              "GetUserProfileLambdaPermissionApiGateway"
+            ]
+          },
+          "ApiGatewayMethodAuthProfilePut": {
+            "Type": "AWS::ApiGateway::Method",
+            "Properties": {
+              "HttpMethod": "PUT",
+              "RequestParameters": {},
+              "ResourceId": {
+                "Ref": "ApiGatewayResourceAuthProfile"
+              },
+              "RestApiId": {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "ApiKeyRequired": false,
+              "AuthorizationType": "NONE",
+              "Integration": {
+                "IntegrationHttpMethod": "POST",
+                "Type": "AWS_PROXY",
+                "Uri": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":apigateway:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":lambda:path/2015-03-31/functions/",
+                      {
+                        "Fn::GetAtt": [
+                          "UpdateUserProfileLambdaFunction",
+                          "Arn"
+                        ]
+                      },
+                      "/invocations"
+                    ]
+                  ]
+                }
+              },
+              "MethodResponses": []
+            },
+            "DependsOn": [
+              "UpdateUserProfileLambdaPermissionApiGateway"
+            ]
+          },
           "ApiGatewayMethodCostDashusageGet": {
             "Type": "AWS::ApiGateway::Method",
             "Properties": {
@@ -394,7 +1243,7 @@
               "GetCostDataLambdaPermissionApiGateway"
             ]
           },
-          "ApiGatewayDeployment1750624337450": {
+          "ApiGatewayDeployment1750712159076": {
             "Type": "AWS::ApiGateway::Deployment",
             "Properties": {
               "RestApiId": {
@@ -403,9 +1252,203 @@
               "StageName": "dev"
             },
             "DependsOn": [
+              "ApiGatewayMethodAuthSignupOptions",
+              "ApiGatewayMethodAuthSigninOptions",
+              "ApiGatewayMethodAuthRefreshOptions",
+              "ApiGatewayMethodAuthProfileOptions",
               "ApiGatewayMethodCostDashusageOptions",
+              "ApiGatewayMethodAuthSignupPost",
+              "ApiGatewayMethodAuthSigninPost",
+              "ApiGatewayMethodAuthRefreshPost",
+              "ApiGatewayMethodAuthProfileGet",
+              "ApiGatewayMethodAuthProfilePut",
               "ApiGatewayMethodCostDashusageGet"
             ]
+          },
+          "SignUpLambdaPermissionApiGateway": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "SignUpLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "ApiGatewayRestApi"
+                    },
+                    "/*/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "SignInLambdaPermissionApiGateway": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "SignInLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "ApiGatewayRestApi"
+                    },
+                    "/*/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "RefreshTokenLambdaPermissionApiGateway": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "RefreshTokenLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "ApiGatewayRestApi"
+                    },
+                    "/*/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "GetUserProfileLambdaPermissionApiGateway": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "GetUserProfileLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "ApiGatewayRestApi"
+                    },
+                    "/*/*"
+                  ]
+                ]
+              }
+            }
+          },
+          "UpdateUserProfileLambdaPermissionApiGateway": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+              "FunctionName": {
+                "Fn::GetAtt": [
+                  "UpdateUserProfileLambdaFunction",
+                  "Arn"
+                ]
+              },
+              "Action": "lambda:InvokeFunction",
+              "Principal": "apigateway.amazonaws.com",
+              "SourceArn": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":execute-api:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":",
+                    {
+                      "Ref": "ApiGatewayRestApi"
+                    },
+                    "/*/*"
+                  ]
+                ]
+              }
+            }
           },
           "GetCostDataLambdaPermissionApiGateway": {
             "Type": "AWS::Lambda::Permission",
@@ -443,6 +1486,121 @@
                 ]
               }
             }
+          },
+          "CostGuardUserPool": {
+            "Type": "AWS::Cognito::UserPool",
+            "Properties": {
+              "UserPoolName": "CostGuard-user-pool-dev",
+              "UsernameAttributes": [
+                "email"
+              ],
+              "AutoVerifiedAttributes": [
+                "email"
+              ],
+              "Policies": {
+                "PasswordPolicy": {
+                  "MinimumLength": 8,
+                  "RequireUppercase": true,
+                  "RequireLowercase": true,
+                  "RequireNumbers": true,
+                  "RequireSymbols": true
+                }
+              },
+              "Schema": [
+                {
+                  "Name": "email",
+                  "AttributeDataType": "String",
+                  "Required": true,
+                  "Mutable": true
+                },
+                {
+                  "Name": "given_name",
+                  "AttributeDataType": "String",
+                  "Required": true,
+                  "Mutable": true
+                },
+                {
+                  "Name": "family_name",
+                  "AttributeDataType": "String",
+                  "Required": true,
+                  "Mutable": true
+                }
+              ],
+              "EmailConfiguration": {
+                "EmailSendingAccount": "COGNITO_DEFAULT"
+              }
+            }
+          },
+          "CostGuardUserPoolClient": {
+            "Type": "AWS::Cognito::UserPoolClient",
+            "Properties": {
+              "ClientName": "CostGuard-user-pool-client-dev",
+              "UserPoolId": {
+                "Ref": "CostGuardUserPool"
+              },
+              "GenerateSecret": false,
+              "ExplicitAuthFlows": [
+                "ALLOW_ADMIN_USER_PASSWORD_AUTH",
+                "ALLOW_USER_PASSWORD_AUTH",
+                "ALLOW_REFRESH_TOKEN_AUTH"
+              ],
+              "AccessTokenValidity": 24,
+              "IdTokenValidity": 24,
+              "RefreshTokenValidity": 30,
+              "TokenValidityUnits": {
+                "AccessToken": "hours",
+                "IdToken": "hours",
+                "RefreshToken": "days"
+              }
+            }
+          },
+          "UsersTable": {
+            "Type": "AWS::DynamoDB::Table",
+            "Properties": {
+              "TableName": "CostGuard-users-dev",
+              "AttributeDefinitions": [
+                {
+                  "AttributeName": "userId",
+                  "AttributeType": "S"
+                },
+                {
+                  "AttributeName": "email",
+                  "AttributeType": "S"
+                }
+              ],
+              "KeySchema": [
+                {
+                  "AttributeName": "userId",
+                  "KeyType": "HASH"
+                }
+              ],
+              "GlobalSecondaryIndexes": [
+                {
+                  "IndexName": "EmailIndex",
+                  "KeySchema": [
+                    {
+                      "AttributeName": "email",
+                      "KeyType": "HASH"
+                    }
+                  ],
+                  "Projection": {
+                    "ProjectionType": "ALL"
+                  },
+                  "ProvisionedThroughput": {
+                    "ReadCapacityUnits": 5,
+                    "WriteCapacityUnits": 5
+                  }
+                }
+              ],
+              "BillingMode": "PROVISIONED",
+              "ProvisionedThroughput": {
+                "ReadCapacityUnits": 5,
+                "WriteCapacityUnits": 5
+              },
+              "StreamSpecification": {
+                "StreamViewType": "NEW_AND_OLD_IMAGES"
+              }
+            }
           }
         },
         "Outputs": {
@@ -452,10 +1610,55 @@
               "Name": "sls-CostGuard-dev-ServerlessDeploymentBucketName"
             }
           },
+          "SignUpLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "SignUpLambdaVersion8VjVTsqYtjJ6djLaPLPUO4cytXT1uR8OcgAPVAA"
+            },
+            "Export": {
+              "Name": "sls-CostGuard-dev-SignUpLambdaFunctionQualifiedArn"
+            }
+          },
+          "SignInLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "SignInLambdaVersionYemxSl4jdZqpkKxnUB8SikfCBRLbR4S2i6EMP62bxSY"
+            },
+            "Export": {
+              "Name": "sls-CostGuard-dev-SignInLambdaFunctionQualifiedArn"
+            }
+          },
+          "RefreshTokenLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "RefreshTokenLambdaVersionz2ul24dID5mSc1f6Un9c1ZNTY20j6eUCU30DPj2cw"
+            },
+            "Export": {
+              "Name": "sls-CostGuard-dev-RefreshTokenLambdaFunctionQualifiedArn"
+            }
+          },
+          "GetUserProfileLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "GetUserProfileLambdaVersion5AE8YxBIslfEgm2nbTxMfffr8242CvuzMQVzNoIWCA"
+            },
+            "Export": {
+              "Name": "sls-CostGuard-dev-GetUserProfileLambdaFunctionQualifiedArn"
+            }
+          },
+          "UpdateUserProfileLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "UpdateUserProfileLambdaVersionESTWfTMLFyWLgnu9M0OOtqAAEMIhX5CgsB31cCdI"
+            },
+            "Export": {
+              "Name": "sls-CostGuard-dev-UpdateUserProfileLambdaFunctionQualifiedArn"
+            }
+          },
           "CostAlertLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "CostAlertLambdaVersionaxNCSPwBjA2nyQeoZbO463r2HToOyDjHx0j1Dac3HWA"
+              "Ref": "CostAlertLambdaVersion4Wu2SP3HtcIOt7dpHP0gsyGkfs7W702aNMdbExhZHtA"
             },
             "Export": {
               "Name": "sls-CostGuard-dev-CostAlertLambdaFunctionQualifiedArn"
@@ -464,7 +1667,7 @@
           "GetCostDataLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "GetCostDataLambdaVersionUazqVZsxqkSYgYE0Shn9ay26aiq2S98R0iUOs4fcrVo"
+              "Ref": "GetCostDataLambdaVersionDAqeDHD4IIOMlmJtCLxwdc7VNk36GylsqaXwrAsfUZ8"
             },
             "Export": {
               "Name": "sls-CostGuard-dev-GetCostDataLambdaFunctionQualifiedArn"
@@ -495,13 +1698,226 @@
             "Export": {
               "Name": "sls-CostGuard-dev-ServiceEndpoint"
             }
+          },
+          "UserPoolId": {
+            "Value": {
+              "Ref": "CostGuardUserPool"
+            },
+            "Export": {
+              "Name": "CostGuard-user-pool-id-dev"
+            }
+          },
+          "UserPoolClientId": {
+            "Value": {
+              "Ref": "CostGuardUserPoolClient"
+            },
+            "Export": {
+              "Name": "CostGuard-user-pool-client-id-dev"
+            }
+          },
+          "UsersTableName": {
+            "Value": {
+              "Ref": "UsersTable"
+            },
+            "Export": {
+              "Name": "CostGuard-users-table-dev"
+            }
           }
         }
       },
       "vpc": {}
     },
+    "plugins": [
+      "serverless-plugin-common-excludes",
+      "serverless-plugin-include-dependencies"
+    ],
     "pluginsData": {},
     "functions": {
+      "signUp": {
+        "handler": "src/functions/Auth/signUp.handler",
+        "description": "User registration with Cognito",
+        "events": [
+          {
+            "http": {
+              "path": "auth/signup",
+              "method": "post",
+              "cors": {
+                "origin": "*",
+                "methods": [
+                  "OPTIONS",
+                  "POST"
+                ],
+                "headers": [
+                  "Content-Type",
+                  "X-Amz-Date",
+                  "Authorization",
+                  "X-Api-Key",
+                  "X-Amz-Security-Token",
+                  "X-Amz-User-Agent",
+                  "X-Amzn-Trace-Id"
+                ],
+                "allowCredentials": false
+              },
+              "integration": "AWS_PROXY"
+            }
+          }
+        ],
+        "name": "CostGuard-dev-signUp",
+        "package": {},
+        "memory": 1024,
+        "timeout": 6,
+        "runtime": "nodejs22.x",
+        "vpc": {},
+        "versionLogicalId": "SignUpLambdaVersion8VjVTsqYtjJ6djLaPLPUO4cytXT1uR8OcgAPVAA"
+      },
+      "signIn": {
+        "handler": "src/functions/Auth/signIn.handler",
+        "description": "User login with Cognito",
+        "events": [
+          {
+            "http": {
+              "path": "auth/signin",
+              "method": "post",
+              "cors": {
+                "origin": "*",
+                "methods": [
+                  "OPTIONS",
+                  "POST"
+                ],
+                "headers": [
+                  "Content-Type",
+                  "X-Amz-Date",
+                  "Authorization",
+                  "X-Api-Key",
+                  "X-Amz-Security-Token",
+                  "X-Amz-User-Agent",
+                  "X-Amzn-Trace-Id"
+                ],
+                "allowCredentials": false
+              },
+              "integration": "AWS_PROXY"
+            }
+          }
+        ],
+        "name": "CostGuard-dev-signIn",
+        "package": {},
+        "memory": 1024,
+        "timeout": 6,
+        "runtime": "nodejs22.x",
+        "vpc": {},
+        "versionLogicalId": "SignInLambdaVersionYemxSl4jdZqpkKxnUB8SikfCBRLbR4S2i6EMP62bxSY"
+      },
+      "refreshToken": {
+        "handler": "src/functions/Auth/refreshToken.handler",
+        "description": "Refresh JWT token",
+        "events": [
+          {
+            "http": {
+              "path": "auth/refresh",
+              "method": "post",
+              "cors": {
+                "origin": "*",
+                "methods": [
+                  "OPTIONS",
+                  "POST"
+                ],
+                "headers": [
+                  "Content-Type",
+                  "X-Amz-Date",
+                  "Authorization",
+                  "X-Api-Key",
+                  "X-Amz-Security-Token",
+                  "X-Amz-User-Agent",
+                  "X-Amzn-Trace-Id"
+                ],
+                "allowCredentials": false
+              },
+              "integration": "AWS_PROXY"
+            }
+          }
+        ],
+        "name": "CostGuard-dev-refreshToken",
+        "package": {},
+        "memory": 1024,
+        "timeout": 6,
+        "runtime": "nodejs22.x",
+        "vpc": {},
+        "versionLogicalId": "RefreshTokenLambdaVersionz2ul24dID5mSc1f6Un9c1ZNTY20j6eUCU30DPj2cw"
+      },
+      "getUserProfile": {
+        "handler": "src/functions/Auth/getUserProfile.handler",
+        "description": "Get user profile information",
+        "events": [
+          {
+            "http": {
+              "path": "auth/profile",
+              "method": "get",
+              "cors": {
+                "origin": "*",
+                "methods": [
+                  "OPTIONS",
+                  "GET"
+                ],
+                "headers": [
+                  "Content-Type",
+                  "X-Amz-Date",
+                  "Authorization",
+                  "X-Api-Key",
+                  "X-Amz-Security-Token",
+                  "X-Amz-User-Agent",
+                  "X-Amzn-Trace-Id"
+                ],
+                "allowCredentials": false
+              },
+              "integration": "AWS_PROXY"
+            }
+          }
+        ],
+        "name": "CostGuard-dev-getUserProfile",
+        "package": {},
+        "memory": 1024,
+        "timeout": 6,
+        "runtime": "nodejs22.x",
+        "vpc": {},
+        "versionLogicalId": "GetUserProfileLambdaVersion5AE8YxBIslfEgm2nbTxMfffr8242CvuzMQVzNoIWCA"
+      },
+      "updateUserProfile": {
+        "handler": "src/functions/Auth/updateUserProfile.handler",
+        "description": "Update user profile information",
+        "events": [
+          {
+            "http": {
+              "path": "auth/profile",
+              "method": "put",
+              "cors": {
+                "origin": "*",
+                "methods": [
+                  "OPTIONS",
+                  "PUT"
+                ],
+                "headers": [
+                  "Content-Type",
+                  "X-Amz-Date",
+                  "Authorization",
+                  "X-Api-Key",
+                  "X-Amz-Security-Token",
+                  "X-Amz-User-Agent",
+                  "X-Amzn-Trace-Id"
+                ],
+                "allowCredentials": false
+              },
+              "integration": "AWS_PROXY"
+            }
+          }
+        ],
+        "name": "CostGuard-dev-updateUserProfile",
+        "package": {},
+        "memory": 1024,
+        "timeout": 6,
+        "runtime": "nodejs22.x",
+        "vpc": {},
+        "versionLogicalId": "UpdateUserProfileLambdaVersionESTWfTMLFyWLgnu9M0OOtqAAEMIhX5CgsB31cCdI"
+      },
       "costAlert": {
         "handler": "src/functions/CostAlert/index.costAlertHandler",
         "description": "Scheduled Lambda to check AWS cost and alert",
@@ -516,11 +1932,11 @@
         "timeout": 6,
         "runtime": "nodejs22.x",
         "vpc": {},
-        "versionLogicalId": "CostAlertLambdaVersionaxNCSPwBjA2nyQeoZbO463r2HToOyDjHx0j1Dac3HWA"
+        "versionLogicalId": "CostAlertLambdaVersion4Wu2SP3HtcIOt7dpHP0gsyGkfs7W702aNMdbExhZHtA"
       },
       "getCostData": {
         "handler": "src/functions/CostData/index.GetCostAndUsageHandler",
-        "description": "Optional: API to fetch cost data from DynamoDB",
+        "description": "API to fetch cost data from DynamoDB (protected)",
         "events": [
           {
             "http": {
@@ -553,7 +1969,152 @@
         "timeout": 6,
         "runtime": "nodejs22.x",
         "vpc": {},
-        "versionLogicalId": "GetCostDataLambdaVersionUazqVZsxqkSYgYE0Shn9ay26aiq2S98R0iUOs4fcrVo"
+        "versionLogicalId": "GetCostDataLambdaVersionDAqeDHD4IIOMlmJtCLxwdc7VNk36GylsqaXwrAsfUZ8"
+      }
+    },
+    "resources": {
+      "Resources": {
+        "CostGuardUserPool": {
+          "Type": "AWS::Cognito::UserPool",
+          "Properties": {
+            "UserPoolName": "CostGuard-user-pool-dev",
+            "UsernameAttributes": [
+              "email"
+            ],
+            "AutoVerifiedAttributes": [
+              "email"
+            ],
+            "Policies": {
+              "PasswordPolicy": {
+                "MinimumLength": 8,
+                "RequireUppercase": true,
+                "RequireLowercase": true,
+                "RequireNumbers": true,
+                "RequireSymbols": true
+              }
+            },
+            "Schema": [
+              {
+                "Name": "email",
+                "AttributeDataType": "String",
+                "Required": true,
+                "Mutable": true
+              },
+              {
+                "Name": "given_name",
+                "AttributeDataType": "String",
+                "Required": true,
+                "Mutable": true
+              },
+              {
+                "Name": "family_name",
+                "AttributeDataType": "String",
+                "Required": true,
+                "Mutable": true
+              }
+            ],
+            "EmailConfiguration": {
+              "EmailSendingAccount": "COGNITO_DEFAULT"
+            }
+          }
+        },
+        "CostGuardUserPoolClient": {
+          "Type": "AWS::Cognito::UserPoolClient",
+          "Properties": {
+            "ClientName": "CostGuard-user-pool-client-dev",
+            "UserPoolId": {
+              "Ref": "CostGuardUserPool"
+            },
+            "GenerateSecret": false,
+            "ExplicitAuthFlows": [
+              "ALLOW_ADMIN_USER_PASSWORD_AUTH",
+              "ALLOW_USER_PASSWORD_AUTH",
+              "ALLOW_REFRESH_TOKEN_AUTH"
+            ],
+            "AccessTokenValidity": 24,
+            "IdTokenValidity": 24,
+            "RefreshTokenValidity": 30,
+            "TokenValidityUnits": {
+              "AccessToken": "hours",
+              "IdToken": "hours",
+              "RefreshToken": "days"
+            }
+          }
+        },
+        "UsersTable": {
+          "Type": "AWS::DynamoDB::Table",
+          "Properties": {
+            "TableName": "CostGuard-users-dev",
+            "AttributeDefinitions": [
+              {
+                "AttributeName": "userId",
+                "AttributeType": "S"
+              },
+              {
+                "AttributeName": "email",
+                "AttributeType": "S"
+              }
+            ],
+            "KeySchema": [
+              {
+                "AttributeName": "userId",
+                "KeyType": "HASH"
+              }
+            ],
+            "GlobalSecondaryIndexes": [
+              {
+                "IndexName": "EmailIndex",
+                "KeySchema": [
+                  {
+                    "AttributeName": "email",
+                    "KeyType": "HASH"
+                  }
+                ],
+                "Projection": {
+                  "ProjectionType": "ALL"
+                },
+                "ProvisionedThroughput": {
+                  "ReadCapacityUnits": 5,
+                  "WriteCapacityUnits": 5
+                }
+              }
+            ],
+            "BillingMode": "PROVISIONED",
+            "ProvisionedThroughput": {
+              "ReadCapacityUnits": 5,
+              "WriteCapacityUnits": 5
+            },
+            "StreamSpecification": {
+              "StreamViewType": "NEW_AND_OLD_IMAGES"
+            }
+          }
+        }
+      },
+      "Outputs": {
+        "UserPoolId": {
+          "Value": {
+            "Ref": "CostGuardUserPool"
+          },
+          "Export": {
+            "Name": "CostGuard-user-pool-id-dev"
+          }
+        },
+        "UserPoolClientId": {
+          "Value": {
+            "Ref": "CostGuardUserPoolClient"
+          },
+          "Export": {
+            "Name": "CostGuard-user-pool-client-id-dev"
+          }
+        },
+        "UsersTableName": {
+          "Value": {
+            "Ref": "UsersTable"
+          },
+          "Export": {
+            "Name": "CostGuard-users-table-dev"
+          }
+        }
       }
     },
     "configValidationMode": "warn",
@@ -568,14 +2129,11 @@
       "functions": {
         "$ref": "$[\"service\"][\"functions\"]"
       },
-      "package": {
-        "patterns": [
-          "!node_modules/**"
-        ],
-        "artifactsS3KeyDirname": "serverless/CostGuard/dev/code-artifacts",
-        "deploymentBucket": "serverless-framework-deployments-us-east-1-de0c9720-9574",
-        "artifact": "/Users/mquanit/Desktop/Projects/costguard/.serverless/CostGuard.zip",
-        "artifactDirectoryName": "serverless/CostGuard/dev/1750624347132-2025-06-22T20:32:27.132Z"
+      "resources": {
+        "$ref": "$[\"service\"][\"resources\"]"
+      },
+      "plugins": {
+        "$ref": "$[\"service\"][\"plugins\"]"
       }
     },
     "app": "costguard",
@@ -586,7 +2144,7 @@
     "artifact": "/Users/mquanit/Desktop/Projects/costguard/.serverless/CostGuard.zip"
   },
   "package": {
-    "artifactDirectoryName": "serverless/CostGuard/dev/1750624347132-2025-06-22T20:32:27.132Z",
+    "artifactDirectoryName": "serverless/CostGuard/dev/1750712175020-2025-06-23T20:56:15.020Z",
     "artifact": "CostGuard.zip"
   }
 }
