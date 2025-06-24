@@ -32,10 +32,28 @@
         "LogGroupName": "/aws/lambda/CostGuard-dev-updateUserProfile"
       }
     },
+    "SetBudgetLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/CostGuard-dev-setBudget"
+      }
+    },
+    "GetBudgetLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/CostGuard-dev-getBudget"
+      }
+    },
     "CostAlertLogGroup": {
       "Type": "AWS::Logs::LogGroup",
       "Properties": {
         "LogGroupName": "/aws/lambda/CostGuard-dev-costAlert"
+      }
+    },
+    "TriggerCostAlertLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/CostGuard-dev-triggerCostAlert"
       }
     },
     "GetCostDataLogGroup": {
@@ -164,8 +182,24 @@
                     },
                     {
                       "Fn::Sub": "${UsersTable.Arn}/index/*"
+                    },
+                    {
+                      "Fn::GetAtt": [
+                        "CloudBudgetSettingsTable",
+                        "Arn"
+                      ]
+                    },
+                    {
+                      "Fn::Sub": "${CloudBudgetSettingsTable.Arn}/index/*"
                     }
                   ]
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "sns:Publish"
+                  ],
+                  "Resource": "*"
                 }
               ]
             }
@@ -192,7 +226,7 @@
       "Properties": {
         "Code": {
           "S3Bucket": "serverless-framework-deployments-us-east-1-de0c9720-9574",
-          "S3Key": "serverless/CostGuard/dev/1750712175020-2025-06-23T20:56:15.020Z/CostGuard.zip"
+          "S3Key": "serverless/CostGuard/dev/1750798685637-2025-06-24T20:58:05.637Z/signUp.zip"
         },
         "Handler": "src/functions/Auth/signUp.handler",
         "Runtime": "nodejs22.x",
@@ -216,6 +250,9 @@
             "USERS_TABLE": {
               "Ref": "UsersTable"
             },
+            "CLOUD_BUDGET_SETTINGS_TABLE": {
+              "Ref": "CloudBudgetSettingsTable"
+            },
             "JWT_SECRET": "your-super-secret-jwt-key-change-this-in-production"
           }
         },
@@ -235,7 +272,7 @@
       "Properties": {
         "Code": {
           "S3Bucket": "serverless-framework-deployments-us-east-1-de0c9720-9574",
-          "S3Key": "serverless/CostGuard/dev/1750712175020-2025-06-23T20:56:15.020Z/CostGuard.zip"
+          "S3Key": "serverless/CostGuard/dev/1750798685637-2025-06-24T20:58:05.637Z/signIn.zip"
         },
         "Handler": "src/functions/Auth/signIn.handler",
         "Runtime": "nodejs22.x",
@@ -259,6 +296,9 @@
             "USERS_TABLE": {
               "Ref": "UsersTable"
             },
+            "CLOUD_BUDGET_SETTINGS_TABLE": {
+              "Ref": "CloudBudgetSettingsTable"
+            },
             "JWT_SECRET": "your-super-secret-jwt-key-change-this-in-production"
           }
         },
@@ -278,7 +318,7 @@
       "Properties": {
         "Code": {
           "S3Bucket": "serverless-framework-deployments-us-east-1-de0c9720-9574",
-          "S3Key": "serverless/CostGuard/dev/1750712175020-2025-06-23T20:56:15.020Z/CostGuard.zip"
+          "S3Key": "serverless/CostGuard/dev/1750798685637-2025-06-24T20:58:05.637Z/refreshToken.zip"
         },
         "Handler": "src/functions/Auth/refreshToken.handler",
         "Runtime": "nodejs22.x",
@@ -302,6 +342,9 @@
             "USERS_TABLE": {
               "Ref": "UsersTable"
             },
+            "CLOUD_BUDGET_SETTINGS_TABLE": {
+              "Ref": "CloudBudgetSettingsTable"
+            },
             "JWT_SECRET": "your-super-secret-jwt-key-change-this-in-production"
           }
         },
@@ -321,7 +364,7 @@
       "Properties": {
         "Code": {
           "S3Bucket": "serverless-framework-deployments-us-east-1-de0c9720-9574",
-          "S3Key": "serverless/CostGuard/dev/1750712175020-2025-06-23T20:56:15.020Z/CostGuard.zip"
+          "S3Key": "serverless/CostGuard/dev/1750798685637-2025-06-24T20:58:05.637Z/getUserProfile.zip"
         },
         "Handler": "src/functions/Auth/getUserProfile.handler",
         "Runtime": "nodejs22.x",
@@ -345,6 +388,9 @@
             "USERS_TABLE": {
               "Ref": "UsersTable"
             },
+            "CLOUD_BUDGET_SETTINGS_TABLE": {
+              "Ref": "CloudBudgetSettingsTable"
+            },
             "JWT_SECRET": "your-super-secret-jwt-key-change-this-in-production"
           }
         },
@@ -364,7 +410,7 @@
       "Properties": {
         "Code": {
           "S3Bucket": "serverless-framework-deployments-us-east-1-de0c9720-9574",
-          "S3Key": "serverless/CostGuard/dev/1750712175020-2025-06-23T20:56:15.020Z/CostGuard.zip"
+          "S3Key": "serverless/CostGuard/dev/1750798685637-2025-06-24T20:58:05.637Z/updateUserProfile.zip"
         },
         "Handler": "src/functions/Auth/updateUserProfile.handler",
         "Runtime": "nodejs22.x",
@@ -388,6 +434,9 @@
             "USERS_TABLE": {
               "Ref": "UsersTable"
             },
+            "CLOUD_BUDGET_SETTINGS_TABLE": {
+              "Ref": "CloudBudgetSettingsTable"
+            },
             "JWT_SECRET": "your-super-secret-jwt-key-change-this-in-production"
           }
         },
@@ -402,19 +451,19 @@
         "UpdateUserProfileLogGroup"
       ]
     },
-    "CostAlertLambdaFunction": {
+    "SetBudgetLambdaFunction": {
       "Type": "AWS::Lambda::Function",
       "Properties": {
         "Code": {
           "S3Bucket": "serverless-framework-deployments-us-east-1-de0c9720-9574",
-          "S3Key": "serverless/CostGuard/dev/1750712175020-2025-06-23T20:56:15.020Z/CostGuard.zip"
+          "S3Key": "serverless/CostGuard/dev/1750798685637-2025-06-24T20:58:05.637Z/setBudget.zip"
         },
-        "Handler": "src/functions/CostAlert/index.costAlertHandler",
+        "Handler": "src/functions/Budget/setBudgetHandler.handler",
         "Runtime": "nodejs22.x",
-        "FunctionName": "CostGuard-dev-costAlert",
+        "FunctionName": "CostGuard-dev-setBudget",
         "MemorySize": 1024,
         "Timeout": 6,
-        "Description": "Scheduled Lambda to check AWS cost and alert",
+        "Description": "Set or update user's cloud budget settings",
         "Environment": {
           "Variables": {
             "COST_ALERT_TOPIC": "your-sns-topic-arn",
@@ -431,6 +480,101 @@
             "USERS_TABLE": {
               "Ref": "UsersTable"
             },
+            "CLOUD_BUDGET_SETTINGS_TABLE": {
+              "Ref": "CloudBudgetSettingsTable"
+            },
+            "JWT_SECRET": "your-super-secret-jwt-key-change-this-in-production"
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "SetBudgetLogGroup"
+      ]
+    },
+    "GetBudgetLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": "serverless-framework-deployments-us-east-1-de0c9720-9574",
+          "S3Key": "serverless/CostGuard/dev/1750798685637-2025-06-24T20:58:05.637Z/getBudget.zip"
+        },
+        "Handler": "src/functions/Budget/getBudgetHandler.handler",
+        "Runtime": "nodejs22.x",
+        "FunctionName": "CostGuard-dev-getBudget",
+        "MemorySize": 1024,
+        "Timeout": 6,
+        "Description": "Get user's current budget settings",
+        "Environment": {
+          "Variables": {
+            "COST_ALERT_TOPIC": "your-sns-topic-arn",
+            "COST_ALERT_TABLE": "your-dynamodb-table-name",
+            "DAILY_THRESHOLD_PERCENT": "50",
+            "MONTHLY_BUDGET": "50",
+            "AWS_ACCOUNT_ID": "",
+            "USER_POOL_ID": {
+              "Ref": "CostGuardUserPool"
+            },
+            "USER_POOL_CLIENT_ID": {
+              "Ref": "CostGuardUserPoolClient"
+            },
+            "USERS_TABLE": {
+              "Ref": "UsersTable"
+            },
+            "CLOUD_BUDGET_SETTINGS_TABLE": {
+              "Ref": "CloudBudgetSettingsTable"
+            },
+            "JWT_SECRET": "your-super-secret-jwt-key-change-this-in-production"
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "GetBudgetLogGroup"
+      ]
+    },
+    "CostAlertLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": "serverless-framework-deployments-us-east-1-de0c9720-9574",
+          "S3Key": "serverless/CostGuard/dev/1750798685637-2025-06-24T20:58:05.637Z/costAlert.zip"
+        },
+        "Handler": "src/functions/CostAlert/costAlertHandler.handler",
+        "Runtime": "nodejs22.x",
+        "FunctionName": "CostGuard-dev-costAlert",
+        "MemorySize": 1024,
+        "Timeout": 6,
+        "Description": "Scheduled Lambda to check AWS cost and alert users",
+        "Environment": {
+          "Variables": {
+            "COST_ALERT_TOPIC": "your-sns-topic-arn",
+            "COST_ALERT_TABLE": "your-dynamodb-table-name",
+            "DAILY_THRESHOLD_PERCENT": "50",
+            "MONTHLY_BUDGET": "50",
+            "AWS_ACCOUNT_ID": "",
+            "USER_POOL_ID": {
+              "Ref": "CostGuardUserPool"
+            },
+            "USER_POOL_CLIENT_ID": {
+              "Ref": "CostGuardUserPoolClient"
+            },
+            "USERS_TABLE": {
+              "Ref": "UsersTable"
+            },
+            "CLOUD_BUDGET_SETTINGS_TABLE": {
+              "Ref": "CloudBudgetSettingsTable"
+            },
             "JWT_SECRET": "your-super-secret-jwt-key-change-this-in-production"
           }
         },
@@ -445,12 +589,58 @@
         "CostAlertLogGroup"
       ]
     },
+    "TriggerCostAlertLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": "serverless-framework-deployments-us-east-1-de0c9720-9574",
+          "S3Key": "serverless/CostGuard/dev/1750798685637-2025-06-24T20:58:05.637Z/triggerCostAlert.zip"
+        },
+        "Handler": "src/functions/CostAlert/costAlertHandler.handler",
+        "Runtime": "nodejs22.x",
+        "FunctionName": "CostGuard-dev-triggerCostAlert",
+        "MemorySize": 1024,
+        "Timeout": 6,
+        "Description": "Manual trigger for cost alerts (for testing)",
+        "Environment": {
+          "Variables": {
+            "COST_ALERT_TOPIC": "your-sns-topic-arn",
+            "COST_ALERT_TABLE": "your-dynamodb-table-name",
+            "DAILY_THRESHOLD_PERCENT": "50",
+            "MONTHLY_BUDGET": "50",
+            "AWS_ACCOUNT_ID": "",
+            "USER_POOL_ID": {
+              "Ref": "CostGuardUserPool"
+            },
+            "USER_POOL_CLIENT_ID": {
+              "Ref": "CostGuardUserPoolClient"
+            },
+            "USERS_TABLE": {
+              "Ref": "UsersTable"
+            },
+            "CLOUD_BUDGET_SETTINGS_TABLE": {
+              "Ref": "CloudBudgetSettingsTable"
+            },
+            "JWT_SECRET": "your-super-secret-jwt-key-change-this-in-production"
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "TriggerCostAlertLogGroup"
+      ]
+    },
     "GetCostDataLambdaFunction": {
       "Type": "AWS::Lambda::Function",
       "Properties": {
         "Code": {
           "S3Bucket": "serverless-framework-deployments-us-east-1-de0c9720-9574",
-          "S3Key": "serverless/CostGuard/dev/1750712175020-2025-06-23T20:56:15.020Z/CostGuard.zip"
+          "S3Key": "serverless/CostGuard/dev/1750798685637-2025-06-24T20:58:05.637Z/getCostData.zip"
         },
         "Handler": "src/functions/CostData/index.GetCostAndUsageHandler",
         "Runtime": "nodejs22.x",
@@ -474,6 +664,9 @@
             "USERS_TABLE": {
               "Ref": "UsersTable"
             },
+            "CLOUD_BUDGET_SETTINGS_TABLE": {
+              "Ref": "CloudBudgetSettingsTable"
+            },
             "JWT_SECRET": "your-super-secret-jwt-key-change-this-in-production"
           }
         },
@@ -488,80 +681,113 @@
         "GetCostDataLogGroup"
       ]
     },
-    "SignUpLambdaVersion8VjVTsqYtjJ6djLaPLPUO4cytXT1uR8OcgAPVAA": {
+    "SignUpLambdaVersionvqbMOsamcf5Du6ZEAq5NkDjSC7ll9xKlFVkNwWu8A": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "SignUpLambdaFunction"
         },
-        "CodeSha256": "Ja/HCaI8JaIfcpYtDWeFPleNozXx+zNUHlZhvJ5SQSM=",
+        "CodeSha256": "gk4Ld3dEpjrh6mf01ktqFTUa5vWteD5Gmwo9deIEBW0=",
         "Description": "User registration with Cognito"
       }
     },
-    "SignInLambdaVersionYemxSl4jdZqpkKxnUB8SikfCBRLbR4S2i6EMP62bxSY": {
+    "SignInLambdaVersionzYPerkvxXqJ714O2LOf2bCAE6GWcawqaPxQH1QFdek": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "SignInLambdaFunction"
         },
-        "CodeSha256": "Ja/HCaI8JaIfcpYtDWeFPleNozXx+zNUHlZhvJ5SQSM=",
+        "CodeSha256": "gk4Ld3dEpjrh6mf01ktqFTUa5vWteD5Gmwo9deIEBW0=",
         "Description": "User login with Cognito"
       }
     },
-    "RefreshTokenLambdaVersionz2ul24dID5mSc1f6Un9c1ZNTY20j6eUCU30DPj2cw": {
-      "Type": "AWS::Lambda::Version",
-      "DeletionPolicy": "Retain",
-      "Properties": {
-        "FunctionName": {
-          "Ref": "RefreshTokenLambdaFunction"
-        },
-        "CodeSha256": "Ja/HCaI8JaIfcpYtDWeFPleNozXx+zNUHlZhvJ5SQSM=",
-        "Description": "Refresh JWT token"
-      }
-    },
-    "GetUserProfileLambdaVersion5AE8YxBIslfEgm2nbTxMfffr8242CvuzMQVzNoIWCA": {
-      "Type": "AWS::Lambda::Version",
-      "DeletionPolicy": "Retain",
-      "Properties": {
-        "FunctionName": {
-          "Ref": "GetUserProfileLambdaFunction"
-        },
-        "CodeSha256": "Ja/HCaI8JaIfcpYtDWeFPleNozXx+zNUHlZhvJ5SQSM=",
-        "Description": "Get user profile information"
-      }
-    },
-    "UpdateUserProfileLambdaVersionESTWfTMLFyWLgnu9M0OOtqAAEMIhX5CgsB31cCdI": {
+    "UpdateUserProfileLambdaVersionWNdHMRFz9XrRXSisvtuMAwUhPkl81U6VXcPlmUL55PU": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "UpdateUserProfileLambdaFunction"
         },
-        "CodeSha256": "Ja/HCaI8JaIfcpYtDWeFPleNozXx+zNUHlZhvJ5SQSM=",
+        "CodeSha256": "gk4Ld3dEpjrh6mf01ktqFTUa5vWteD5Gmwo9deIEBW0=",
         "Description": "Update user profile information"
       }
     },
-    "CostAlertLambdaVersion4Wu2SP3HtcIOt7dpHP0gsyGkfs7W702aNMdbExhZHtA": {
+    "RefreshTokenLambdaVersionFsDMnfTvmpswyZ5jvHvuxOmnrojIW7DPbSOrrmw": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "RefreshTokenLambdaFunction"
+        },
+        "CodeSha256": "gk4Ld3dEpjrh6mf01ktqFTUa5vWteD5Gmwo9deIEBW0=",
+        "Description": "Refresh JWT token"
+      }
+    },
+    "GetBudgetLambdaVersiondkl3xW0cQdnwt08ROXDts1Chfv7dSF9SE0yv2F5SfAs": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "GetBudgetLambdaFunction"
+        },
+        "CodeSha256": "gk4Ld3dEpjrh6mf01ktqFTUa5vWteD5Gmwo9deIEBW0=",
+        "Description": "Get user's current budget settings"
+      }
+    },
+    "GetUserProfileLambdaVersionoWfmTtd8oHXOT5rGDq7WAbRx0SsvDYwC40MbckG28": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "GetUserProfileLambdaFunction"
+        },
+        "CodeSha256": "gk4Ld3dEpjrh6mf01ktqFTUa5vWteD5Gmwo9deIEBW0=",
+        "Description": "Get user profile information"
+      }
+    },
+    "SetBudgetLambdaVersionSEOqAA4XWjvtfiNOcw4IRFOL5f467eKl47TPRASo": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "SetBudgetLambdaFunction"
+        },
+        "CodeSha256": "gk4Ld3dEpjrh6mf01ktqFTUa5vWteD5Gmwo9deIEBW0=",
+        "Description": "Set or update user's cloud budget settings"
+      }
+    },
+    "TriggerCostAlertLambdaVersionF5B8UOq42E50XH1eLpsQgNHkJqBB1EpYdMqLpQt5HW4": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "TriggerCostAlertLambdaFunction"
+        },
+        "CodeSha256": "oM2+pqKIEJ5XQ5EcNXNzM6yCJi3SWtH+m5OrATT2120=",
+        "Description": "Manual trigger for cost alerts (for testing)"
+      }
+    },
+    "CostAlertLambdaVersionDfK1Sl0gyTvWCsb6SepZCblNg6IrKWYB4mCtkRGSFw": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "CostAlertLambdaFunction"
         },
-        "CodeSha256": "Ja/HCaI8JaIfcpYtDWeFPleNozXx+zNUHlZhvJ5SQSM=",
-        "Description": "Scheduled Lambda to check AWS cost and alert"
+        "CodeSha256": "oM2+pqKIEJ5XQ5EcNXNzM6yCJi3SWtH+m5OrATT2120=",
+        "Description": "Scheduled Lambda to check AWS cost and alert users"
       }
     },
-    "GetCostDataLambdaVersionDAqeDHD4IIOMlmJtCLxwdc7VNk36GylsqaXwrAsfUZ8": {
+    "GetCostDataLambdaVersionGA1G4OmokFNos60ROmuIVo98Wvj0xEqROigN4zGksjw": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "GetCostDataLambdaFunction"
         },
-        "CodeSha256": "Ja/HCaI8JaIfcpYtDWeFPleNozXx+zNUHlZhvJ5SQSM=",
+        "CodeSha256": "ThtQIsF++aLuLjFmmnK+sV1IPHkE4YNRQ2JmN6KJQWY=",
         "Description": "API to fetch cost data from DynamoDB (protected)"
       }
     },
@@ -672,6 +898,60 @@
           "Ref": "ApiGatewayResourceAuth"
         },
         "PathPart": "profile",
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        }
+      }
+    },
+    "ApiGatewayResourceBudget": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": [
+            "ApiGatewayRestApi",
+            "RootResourceId"
+          ]
+        },
+        "PathPart": "budget",
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        }
+      }
+    },
+    "ApiGatewayResourceBudgetSet": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Ref": "ApiGatewayResourceBudget"
+        },
+        "PathPart": "set",
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        }
+      }
+    },
+    "ApiGatewayResourceAlerts": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": [
+            "ApiGatewayRestApi",
+            "RootResourceId"
+          ]
+        },
+        "PathPart": "alerts",
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        }
+      }
+    },
+    "ApiGatewayResourceAlertsTrigger": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Ref": "ApiGatewayResourceAlerts"
+        },
+        "PathPart": "trigger",
         "RestApiId": {
           "Ref": "ApiGatewayRestApi"
         }
@@ -866,6 +1146,141 @@
         },
         "ResourceId": {
           "Ref": "ApiGatewayResourceAuthProfile"
+        },
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        }
+      }
+    },
+    "ApiGatewayMethodBudgetSetOptions": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "AuthorizationType": "NONE",
+        "HttpMethod": "OPTIONS",
+        "MethodResponses": [
+          {
+            "StatusCode": "200",
+            "ResponseParameters": {
+              "method.response.header.Access-Control-Allow-Origin": true,
+              "method.response.header.Access-Control-Allow-Headers": true,
+              "method.response.header.Access-Control-Allow-Methods": true
+            },
+            "ResponseModels": {}
+          }
+        ],
+        "RequestParameters": {},
+        "Integration": {
+          "Type": "MOCK",
+          "RequestTemplates": {
+            "application/json": "{statusCode:200}"
+          },
+          "ContentHandling": "CONVERT_TO_TEXT",
+          "IntegrationResponses": [
+            {
+              "StatusCode": "200",
+              "ResponseParameters": {
+                "method.response.header.Access-Control-Allow-Origin": "'*'",
+                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent,X-Amzn-Trace-Id'",
+                "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,POST'"
+              },
+              "ResponseTemplates": {
+                "application/json": ""
+              }
+            }
+          ]
+        },
+        "ResourceId": {
+          "Ref": "ApiGatewayResourceBudgetSet"
+        },
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        }
+      }
+    },
+    "ApiGatewayMethodBudgetOptions": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "AuthorizationType": "NONE",
+        "HttpMethod": "OPTIONS",
+        "MethodResponses": [
+          {
+            "StatusCode": "200",
+            "ResponseParameters": {
+              "method.response.header.Access-Control-Allow-Origin": true,
+              "method.response.header.Access-Control-Allow-Headers": true,
+              "method.response.header.Access-Control-Allow-Methods": true
+            },
+            "ResponseModels": {}
+          }
+        ],
+        "RequestParameters": {},
+        "Integration": {
+          "Type": "MOCK",
+          "RequestTemplates": {
+            "application/json": "{statusCode:200}"
+          },
+          "ContentHandling": "CONVERT_TO_TEXT",
+          "IntegrationResponses": [
+            {
+              "StatusCode": "200",
+              "ResponseParameters": {
+                "method.response.header.Access-Control-Allow-Origin": "'*'",
+                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent,X-Amzn-Trace-Id'",
+                "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,GET'"
+              },
+              "ResponseTemplates": {
+                "application/json": ""
+              }
+            }
+          ]
+        },
+        "ResourceId": {
+          "Ref": "ApiGatewayResourceBudget"
+        },
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        }
+      }
+    },
+    "ApiGatewayMethodAlertsTriggerOptions": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "AuthorizationType": "NONE",
+        "HttpMethod": "OPTIONS",
+        "MethodResponses": [
+          {
+            "StatusCode": "200",
+            "ResponseParameters": {
+              "method.response.header.Access-Control-Allow-Origin": true,
+              "method.response.header.Access-Control-Allow-Headers": true,
+              "method.response.header.Access-Control-Allow-Methods": true
+            },
+            "ResponseModels": {}
+          }
+        ],
+        "RequestParameters": {},
+        "Integration": {
+          "Type": "MOCK",
+          "RequestTemplates": {
+            "application/json": "{statusCode:200}"
+          },
+          "ContentHandling": "CONVERT_TO_TEXT",
+          "IntegrationResponses": [
+            {
+              "StatusCode": "200",
+              "ResponseParameters": {
+                "method.response.header.Access-Control-Allow-Origin": "'*'",
+                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent,X-Amzn-Trace-Id'",
+                "method.response.header.Access-Control-Allow-Methods": "'OPTIONS,POST'"
+              },
+              "ResponseTemplates": {
+                "application/json": ""
+              }
+            }
+          ]
+        },
+        "ResourceId": {
+          "Ref": "ApiGatewayResourceAlertsTrigger"
         },
         "RestApiId": {
           "Ref": "ApiGatewayRestApi"
@@ -1147,6 +1562,144 @@
         "UpdateUserProfileLambdaPermissionApiGateway"
       ]
     },
+    "ApiGatewayMethodBudgetSetPost": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "HttpMethod": "POST",
+        "RequestParameters": {},
+        "ResourceId": {
+          "Ref": "ApiGatewayResourceBudgetSet"
+        },
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        },
+        "ApiKeyRequired": false,
+        "AuthorizationType": "NONE",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "SetBudgetLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "/invocations"
+              ]
+            ]
+          }
+        },
+        "MethodResponses": []
+      },
+      "DependsOn": [
+        "SetBudgetLambdaPermissionApiGateway"
+      ]
+    },
+    "ApiGatewayMethodBudgetGet": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "HttpMethod": "GET",
+        "RequestParameters": {},
+        "ResourceId": {
+          "Ref": "ApiGatewayResourceBudget"
+        },
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        },
+        "ApiKeyRequired": false,
+        "AuthorizationType": "NONE",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "GetBudgetLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "/invocations"
+              ]
+            ]
+          }
+        },
+        "MethodResponses": []
+      },
+      "DependsOn": [
+        "GetBudgetLambdaPermissionApiGateway"
+      ]
+    },
+    "ApiGatewayMethodAlertsTriggerPost": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "HttpMethod": "POST",
+        "RequestParameters": {},
+        "ResourceId": {
+          "Ref": "ApiGatewayResourceAlertsTrigger"
+        },
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        },
+        "ApiKeyRequired": false,
+        "AuthorizationType": "NONE",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "TriggerCostAlertLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "/invocations"
+              ]
+            ]
+          }
+        },
+        "MethodResponses": []
+      },
+      "DependsOn": [
+        "TriggerCostAlertLambdaPermissionApiGateway"
+      ]
+    },
     "ApiGatewayMethodCostDashusageGet": {
       "Type": "AWS::ApiGateway::Method",
       "Properties": {
@@ -1193,7 +1746,7 @@
         "GetCostDataLambdaPermissionApiGateway"
       ]
     },
-    "ApiGatewayDeployment1750712159076": {
+    "ApiGatewayDeployment1750798642689": {
       "Type": "AWS::ApiGateway::Deployment",
       "Properties": {
         "RestApiId": {
@@ -1206,12 +1759,18 @@
         "ApiGatewayMethodAuthSigninOptions",
         "ApiGatewayMethodAuthRefreshOptions",
         "ApiGatewayMethodAuthProfileOptions",
+        "ApiGatewayMethodBudgetSetOptions",
+        "ApiGatewayMethodBudgetOptions",
+        "ApiGatewayMethodAlertsTriggerOptions",
         "ApiGatewayMethodCostDashusageOptions",
         "ApiGatewayMethodAuthSignupPost",
         "ApiGatewayMethodAuthSigninPost",
         "ApiGatewayMethodAuthRefreshPost",
         "ApiGatewayMethodAuthProfileGet",
         "ApiGatewayMethodAuthProfilePut",
+        "ApiGatewayMethodBudgetSetPost",
+        "ApiGatewayMethodBudgetGet",
+        "ApiGatewayMethodAlertsTriggerPost",
         "ApiGatewayMethodCostDashusageGet"
       ]
     },
@@ -1400,6 +1959,117 @@
         }
       }
     },
+    "SetBudgetLambdaPermissionApiGateway": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "SetBudgetLambdaFunction",
+            "Arn"
+          ]
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":",
+              {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "/*/*"
+            ]
+          ]
+        }
+      }
+    },
+    "GetBudgetLambdaPermissionApiGateway": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "GetBudgetLambdaFunction",
+            "Arn"
+          ]
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":",
+              {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "/*/*"
+            ]
+          ]
+        }
+      }
+    },
+    "TriggerCostAlertLambdaPermissionApiGateway": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "TriggerCostAlertLambdaFunction",
+            "Arn"
+          ]
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":",
+              {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "/*/*"
+            ]
+          ]
+        }
+      }
+    },
     "GetCostDataLambdaPermissionApiGateway": {
       "Type": "AWS::Lambda::Permission",
       "Properties": {
@@ -1504,6 +2174,40 @@
         }
       }
     },
+    "CloudBudgetSettingsTable": {
+      "Type": "AWS::DynamoDB::Table",
+      "Properties": {
+        "TableName": "CostGuard-cloud-budget-settings-dev",
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "userId",
+            "AttributeType": "S"
+          },
+          {
+            "AttributeName": "budgetId",
+            "AttributeType": "S"
+          }
+        ],
+        "KeySchema": [
+          {
+            "AttributeName": "userId",
+            "KeyType": "HASH"
+          },
+          {
+            "AttributeName": "budgetId",
+            "KeyType": "RANGE"
+          }
+        ],
+        "BillingMode": "PROVISIONED",
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": 5,
+          "WriteCapacityUnits": 5
+        },
+        "StreamSpecification": {
+          "StreamViewType": "NEW_AND_OLD_IMAGES"
+        }
+      }
+    },
     "UsersTable": {
       "Type": "AWS::DynamoDB::Table",
       "Properties": {
@@ -1563,7 +2267,7 @@
     "SignUpLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "SignUpLambdaVersion8VjVTsqYtjJ6djLaPLPUO4cytXT1uR8OcgAPVAA"
+        "Ref": "SignUpLambdaVersionvqbMOsamcf5Du6ZEAq5NkDjSC7ll9xKlFVkNwWu8A"
       },
       "Export": {
         "Name": "sls-CostGuard-dev-SignUpLambdaFunctionQualifiedArn"
@@ -1572,43 +2276,70 @@
     "SignInLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "SignInLambdaVersionYemxSl4jdZqpkKxnUB8SikfCBRLbR4S2i6EMP62bxSY"
+        "Ref": "SignInLambdaVersionzYPerkvxXqJ714O2LOf2bCAE6GWcawqaPxQH1QFdek"
       },
       "Export": {
         "Name": "sls-CostGuard-dev-SignInLambdaFunctionQualifiedArn"
       }
     },
-    "RefreshTokenLambdaFunctionQualifiedArn": {
-      "Description": "Current Lambda function version",
-      "Value": {
-        "Ref": "RefreshTokenLambdaVersionz2ul24dID5mSc1f6Un9c1ZNTY20j6eUCU30DPj2cw"
-      },
-      "Export": {
-        "Name": "sls-CostGuard-dev-RefreshTokenLambdaFunctionQualifiedArn"
-      }
-    },
-    "GetUserProfileLambdaFunctionQualifiedArn": {
-      "Description": "Current Lambda function version",
-      "Value": {
-        "Ref": "GetUserProfileLambdaVersion5AE8YxBIslfEgm2nbTxMfffr8242CvuzMQVzNoIWCA"
-      },
-      "Export": {
-        "Name": "sls-CostGuard-dev-GetUserProfileLambdaFunctionQualifiedArn"
-      }
-    },
     "UpdateUserProfileLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "UpdateUserProfileLambdaVersionESTWfTMLFyWLgnu9M0OOtqAAEMIhX5CgsB31cCdI"
+        "Ref": "UpdateUserProfileLambdaVersionWNdHMRFz9XrRXSisvtuMAwUhPkl81U6VXcPlmUL55PU"
       },
       "Export": {
         "Name": "sls-CostGuard-dev-UpdateUserProfileLambdaFunctionQualifiedArn"
       }
     },
+    "RefreshTokenLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "RefreshTokenLambdaVersionFsDMnfTvmpswyZ5jvHvuxOmnrojIW7DPbSOrrmw"
+      },
+      "Export": {
+        "Name": "sls-CostGuard-dev-RefreshTokenLambdaFunctionQualifiedArn"
+      }
+    },
+    "GetBudgetLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "GetBudgetLambdaVersiondkl3xW0cQdnwt08ROXDts1Chfv7dSF9SE0yv2F5SfAs"
+      },
+      "Export": {
+        "Name": "sls-CostGuard-dev-GetBudgetLambdaFunctionQualifiedArn"
+      }
+    },
+    "GetUserProfileLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "GetUserProfileLambdaVersionoWfmTtd8oHXOT5rGDq7WAbRx0SsvDYwC40MbckG28"
+      },
+      "Export": {
+        "Name": "sls-CostGuard-dev-GetUserProfileLambdaFunctionQualifiedArn"
+      }
+    },
+    "SetBudgetLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "SetBudgetLambdaVersionSEOqAA4XWjvtfiNOcw4IRFOL5f467eKl47TPRASo"
+      },
+      "Export": {
+        "Name": "sls-CostGuard-dev-SetBudgetLambdaFunctionQualifiedArn"
+      }
+    },
+    "TriggerCostAlertLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "TriggerCostAlertLambdaVersionF5B8UOq42E50XH1eLpsQgNHkJqBB1EpYdMqLpQt5HW4"
+      },
+      "Export": {
+        "Name": "sls-CostGuard-dev-TriggerCostAlertLambdaFunctionQualifiedArn"
+      }
+    },
     "CostAlertLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "CostAlertLambdaVersion4Wu2SP3HtcIOt7dpHP0gsyGkfs7W702aNMdbExhZHtA"
+        "Ref": "CostAlertLambdaVersionDfK1Sl0gyTvWCsb6SepZCblNg6IrKWYB4mCtkRGSFw"
       },
       "Export": {
         "Name": "sls-CostGuard-dev-CostAlertLambdaFunctionQualifiedArn"
@@ -1617,7 +2348,7 @@
     "GetCostDataLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "GetCostDataLambdaVersionDAqeDHD4IIOMlmJtCLxwdc7VNk36GylsqaXwrAsfUZ8"
+        "Ref": "GetCostDataLambdaVersionGA1G4OmokFNos60ROmuIVo98Wvj0xEqROigN4zGksjw"
       },
       "Export": {
         "Name": "sls-CostGuard-dev-GetCostDataLambdaFunctionQualifiedArn"
@@ -1665,12 +2396,12 @@
         "Name": "CostGuard-user-pool-client-id-dev"
       }
     },
-    "UsersTableName": {
+    "CloudBudgetSettingsTableName": {
       "Value": {
-        "Ref": "UsersTable"
+        "Ref": "CloudBudgetSettingsTable"
       },
       "Export": {
-        "Name": "CostGuard-users-table-dev"
+        "Name": "CostGuard-cloud-budget-settings-table-dev"
       }
     }
   }

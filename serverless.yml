@@ -17,6 +17,7 @@ provider:
     USER_POOL_ID: !Ref CostGuardUserPool
     USER_POOL_CLIENT_ID: !Ref CostGuardUserPoolClient
     USERS_TABLE: !Ref UsersTable
+    CLOUD_BUDGET_SETTINGS_TABLE: !Ref CloudBudgetSettingsTable
     JWT_SECRET: ${env:JWT_SECRET, "your-jwt-secret-key"}
   iam:
     role:
@@ -58,6 +59,12 @@ provider:
           Resource:
             - !GetAtt UsersTable.Arn
             - !Sub "${UsersTable.Arn}/index/*"
+            - !GetAtt CloudBudgetSettingsTable.Arn
+            - !Sub "${CloudBudgetSettingsTable.Arn}/index/*"
+        - Effect: Allow
+          Action:
+            - sns:Publish
+          Resource: "*"
 
 functions:
   # Authentication Functions
@@ -106,12 +113,40 @@ functions:
           method: put
           cors: true
 
-  # Existing Functions (now protected)
+  # Budget Management Functions
+  setBudget:
+    handler: src/functions/Budget/setBudgetHandler.handler
+    description: "Set or update user's cloud budget settings"
+    events:
+      - http:
+          path: budget/set
+          method: post
+          cors: true
+
+  getBudget:
+    handler: src/functions/Budget/getBudgetHandler.handler
+    description: "Get user's current budget settings"
+    events:
+      - http:
+          path: budget
+          method: get
+          cors: true
+
+  # Cost Alert Functions
   costAlert:
-    handler: src/functions/CostAlert/index.costAlertHandler
-    description: "Scheduled Lambda to check AWS cost and alert"
+    handler: src/functions/CostAlert/costAlertHandler.handler
+    description: "Scheduled Lambda to check AWS cost and alert users"
     events:
       - schedule: rate(1 day)
+
+  triggerCostAlert:
+    handler: src/functions/CostAlert/costAlertHandler.handler
+    description: "Manual trigger for cost alerts (for testing)"
+    events:
+      - http:
+          path: alerts/trigger
+          method: post
+          cors: true
 
   getCostData:
     handler: src/functions/CostData/index.GetCostAndUsageHandler
@@ -175,6 +210,28 @@ resources:
           IdToken: hours
           RefreshToken: days
 
+    # DynamoDB CloudBudgetSettings Table
+    CloudBudgetSettingsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:service}-cloud-budget-settings-${sls:stage}
+        AttributeDefinitions:
+          - AttributeName: userId
+            AttributeType: S
+          - AttributeName: budgetId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: userId
+            KeyType: HASH
+          - AttributeName: budgetId
+            KeyType: RANGE
+        BillingMode: PROVISIONED
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5
+        StreamSpecification:
+          StreamViewType: NEW_AND_OLD_IMAGES
+
     # DynamoDB Users Table
     UsersTable:
       Type: AWS::DynamoDB::Table
@@ -216,27 +273,36 @@ resources:
       Export:
         Name: ${self:service}-user-pool-client-id-${sls:stage}
 
-    UsersTableName:
-      Value: !Ref UsersTable
+    CloudBudgetSettingsTableName:
+      Value: !Ref CloudBudgetSettingsTable
       Export:
-        Name: ${self:service}-users-table-${sls:stage}
+        Name: ${self:service}-cloud-budget-settings-table-${sls:stage}
 
 plugins:
   - serverless-plugin-common-excludes # this should go before serverless-plugin-include-dependencies
   - serverless-plugin-include-dependencies
-# package:
-#   individually: true
-#   patterns:
-#     - "!.git/**"
-#     - "!.vscode/**"
-#     - "!tests/**"
-#     - "!docs/**"
-#     - "!*.md"
-#     - "!.env"
-#     - "!.gitignore"
-#     - "!test-auth.js"
-#     - "!node_modules/**"
-#     - "!.serverless/**"
-#     - "!coverage/**"
-#     - "!jest.config.js"
-#     - "!eslint.config.js"
+
+package:
+  individually: true
+  patterns:
+    - "!.git/**"
+    - "!.vscode/**"
+    - "!tests/**"
+    - "!docs/**"
+    - "!*.md"
+    - "!.env"
+    - "!.gitignore"
+    - "!test-auth.js"
+    - "!node_modules/**"
+    - "!.serverless/**"
+    - "!coverage/**"
+    - "!jest.config.js"
+    - "!eslint.config.js"
+    # - "node_modules/@aws-sdk/client-budgets/**"
+    # - "node_modules/@aws-sdk/client-cost-explorer/**"
+    # - "node_modules/@aws-sdk/client-sts/**"
+    # - "node_modules/@aws-sdk/client-cognito-identity-provider/**"
+    # - "node_modules/@aws-sdk/client-dynamodb/**"
+    # - "node_modules/@aws-sdk/lib-dynamodb/**"
+    # - "node_modules/@aws-sdk/client-sns/**"
+    # - "node_modules/@smithy/**"
