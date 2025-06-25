@@ -50,18 +50,6 @@ Authorization: Bearer <access_token>  # For protected endpoints
 - `GET /cost-usage` - Get cost and usage data
 - `POST /alerts/trigger` - Trigger cost alerts manually
 
-## 🔧 Environment Setup
-
-### Required Environment Variables
-```bash
-AWS_REGION=us-east-1
-USERS_TABLE=CostGuard-dev-users
-CLOUD_BUDGET_SETTINGS_TABLE=CostGuard-dev-cloud-budget-settings
-USER_POOL_ID=us-east-1_uEYtQOD55
-USER_POOL_CLIENT_ID=38t6dn69m14plcipikds7qkstg
-JWT_SECRET=your-jwt-secret-key
-```
-
 ## 📖 Detailed Documentation
 
 For detailed API documentation with examples, request/response schemas, and error codes, see the individual API documentation files in the `api/` directory.

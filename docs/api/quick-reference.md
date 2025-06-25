@@ -192,17 +192,6 @@ curl -s -X POST $BASE_URL/alerts/trigger -H "Authorization: Bearer $TOKEN" -H "C
 
 ---
 
-## 📝 Environment Variables
-
-```bash
-# Set these for easier testing
-export BASE_URL="https://dl6q0k9s90.execute-api.us-east-1.amazonaws.com/dev"
-export TOKEN="your_access_token_here"
-
-# Then use:
-curl -X GET $BASE_URL/budget -H "Authorization: Bearer $TOKEN"
-```
-
 ---
 
 ## 🔍 Response Filtering with jq
