@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CostGuard API Documentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            border-radius: 10px;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .card h3 {
+            color: #667eea;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+        
+        .card p {
+            margin-bottom: 1rem;
+            color: #666;
+        }
+        
+        .card ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .card li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .card li:last-child {
+            border-bottom: none;
+        }
+        
+        .card a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .card a:hover {
+            text-decoration: underline;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            background: #e9ecef;
+            color: #495057;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-left: 0.5rem;
+        }
+        
+        .badge.auth {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .badge.no-auth {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .quick-start {
+            background: #e8f5e8;
+            border-left: 4px solid #28a745;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 5px;
+        }
+        
+        .quick-start h3 {
+            color: #28a745;
+            margin-bottom: 1rem;
+        }
+        
+        code {
+            background: #f8f9fa;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.9rem;
+        }
+        
+        .endpoint {
+            font-family: monospace;
+            background: #f8f9fa;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-size: 0.9rem;
+        }
+        
+        .method {
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+        
+        .method.get { color: #28a745; }
+        .method.post { color: #007bff; }
+        .method.put { color: #ffc107; }
+        .method.delete { color: #dc3545; }
+        
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            color: #666;
+            border-top: 1px solid #eee;
+            margin-top: 3rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🛡️ CostGuard API Documentation</h1>
+            <p class="subtitle">Comprehensive AWS Cost Monitoring & Budget Management System</p>
+        </header>
+
+        <div class="quick-start">
+            <h3>🚀 Quick Start</h3>
+            <p><strong>Base URL:</strong> <code>https://dl6q0k9s90.execute-api.us-east-1.amazonaws.com/dev</code></p>
+            <p><strong>Authentication:</strong> Bearer token required for protected endpoints</p>
+            <p><strong>Test Script:</strong> Run <code>./docs/test-api.sh</code> to test all endpoints</p>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h3>📚 API Documentation</h3>
+                <p>Complete API reference with detailed examples and curl commands.</p>
+                <ul>
+                    <li><a href="./api/README.md">API Overview</a> <span class="badge">Complete Reference</span></li>
+                    <li><a href="./api/quick-reference.md">Quick Reference</a> <span class="badge">Essential Commands</span></li>
+                    <li><a href="./CostGuard-API-Collection.postman_collection.json">Postman Collection</a> <span class="badge">Import Ready</span></li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>🔐 Authentication APIs</h3>
+                <p>User registration, login, and token management endpoints.</p>
+                <ul>
+                    <li><span class="method post">POST</span> <span class="endpoint">/auth/signup</span> <span class="badge no-auth">No Auth</span></li>
+                    <li><span class="method post">POST</span> <span class="endpoint">/auth/signin</span> <span class="badge no-auth">No Auth</span></li>
+                    <li><span class="method post">POST</span> <span class="endpoint">/auth/refresh</span> <span class="badge no-auth">No Auth</span></li>
+                </ul>
+                <p><a href="./api/authentication.md">View Authentication Docs →</a></p>
+            </div>
+
+            <div class="card">
+                <h3>👤 User Profile APIs</h3>
+                <p>Manage user profile information and preferences.</p>
+                <ul>
+                    <li><span class="method get">GET</span> <span class="endpoint">/auth/profile</span> <span class="badge auth">Auth Required</span></li>
+                    <li><span class="method put">PUT</span> <span class="endpoint">/auth/profile</span> <span class="badge auth">Auth Required</span></li>
+                </ul>
+                <p><a href="./api/user-profile.md">View Profile Docs →</a></p>
+            </div>
+
+            <div class="card">
+                <h3>💰 Budget Management APIs</h3>
+                <p>Create, update, and retrieve budget configurations.</p>
+                <ul>
+                    <li><span class="method post">POST</span> <span class="endpoint">/budget/set</span> <span class="badge auth">Auth Required</span></li>
+                    <li><span class="method get">GET</span> <span class="endpoint">/budget</span> <span class="badge auth">Auth Required</span></li>
+                    <li><span class="method get">GET</span> <span class="endpoint">/budget?budgetId=&lt;id&gt;</span> <span class="badge auth">Auth Required</span></li>
+                    <li><span class="method get">GET</span> <span class="endpoint">/budget?primaryOnly=true</span> <span class="badge auth">Auth Required</span></li>
+                </ul>
+                <p><a href="./api/budget-management.md">View Budget Docs →</a></p>
+            </div>
+
+            <div class="card">
+                <h3>📊 Cost Monitoring APIs</h3>
+                <p>Track AWS spending and trigger budget alerts.</p>
+                <ul>
+                    <li><span class="method get">GET</span> <span class="endpoint">/cost-usage</span> <span class="badge auth">Auth Required</span></li>
+                    <li><span class="method post">POST</span> <span class="endpoint">/alerts/trigger</span> <span class="badge auth">Auth Required</span></li>
+                </ul>
+                <p><a href="./api/cost-monitoring.md">View Monitoring Docs →</a></p>
+            </div>
+
+            <div class="card">
+                <h3>🛠️ Development Tools</h3>
+                <p>Tools and resources for API development and testing.</p>
+                <ul>
+                    <li><a href="./test-api.sh">API Test Script</a> <span class="badge">Bash Script</span></li>
+                    <li><a href="./CostGuard-API-Collection.postman_collection.json">Postman Collection</a> <span class="badge">JSON</span></li>
+                    <li><a href="./api/quick-reference.md">Quick Reference</a> <span class="badge">Cheat Sheet</span></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>📋 All API Endpoints Summary</h3>
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background: #f8f9fa;">
+                            <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #dee2e6;">Method</th>
+                            <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #dee2e6;">Endpoint</th>
+                            <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #dee2e6;">Description</th>
+                            <th style="padding: 1rem; text-align: left; border-bottom: 2px solid #dee2e6;">Auth</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="padding: 0.75rem; border-bottom: 1px solid #dee2e6;"><span class="method post">POST</span></td>
+                            <td style="padding: 0.75rem; border-bottom: 1px solid #dee2e6;"><code>/auth/signup</code></td>
+                            <td style="padding: 0.75rem; border-bottom: 1px solid #dee2e6;">User registration</td>
+                            <td style="padding: 0.75rem; border-bottom: 1px solid #dee2e6;"><span class="badge no-auth">No</span></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.75rem; border-bottom: 1px solid #dee2e6;"><span class="method post">POST</span></td>
+                            <td style="padding: 0.75rem; border-bottom: 1px solid #dee2e6;"><code>/auth/signin</code></td>
+                            <td style="padding: 0.75rem; border-bottom: 1px solid #dee2e6;">User login</td>
+                            <td style="padding: 0.75rem; border-bottom: 1px solid #dee2e6;"><span class="badge no-auth">No</span></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.75rem; border-bottom: 1px solid #dee2e6;"><span class="method post">POST</span></td>
+                            <td style="padding: 0.75rem; border-bottom: 1px solid #dee2e6;"><code>/auth/refresh</code></td>
+                            <td style="padding: 0.75rem; border-bottom: 1px solid #dee2e6;">Refresh access token</td>
+                            <td style="padding: 0.75rem; border-bottom: 1px solid #dee2e6;"><span class="badge no-auth">No</span></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.75rem; border-bottom: 1px solid #dee2e6;"><span class="method get">GET</span></td>
+                            <td style="padding: 0.75rem; border-bottom: 1px solid #dee2e6;"><code>/auth/profile</code></td>
+                            <td style="padding: 0.75rem; border-bottom: 1px solid #dee2e6;">Get user profile</td>
+                            <td style="padding: 0.75rem; border-bottom: 1px solid #dee2e6;"><span class="badge auth">Yes</span></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.75rem; border-bottom: 1px solid #dee2e6;"><span class="method put">PUT</span></td>
+                            <td style="padding: 0.75rem; border-bottom: 1px solid #dee2e6;"><code>/auth/profile</code></td>
+                            <td style="padding: 0.75rem; border-bottom: 1px solid #dee2e6;">Update user profile</td>
+                            <td style="padding: 0.75rem; border-bottom: 1px solid #dee2e6;"><span class="badge auth">Yes</span></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.75rem; border-bottom: 1px solid #dee2e6;"><span class="method post">POST</span></td>
+                            <td style="padding: 0.75rem; border-bottom: 1px solid #dee2e6;"><code>/budget/set</code></td>
+                            <td style="padding: 0.75rem; border-bottom: 1px solid #dee2e6;">Create/update budget</td>
+                            <td style="padding: 0.75rem; border-bottom: 1px solid #dee2e6;"><span class="badge auth">Yes</span></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.75rem; border-bottom: 1px solid #dee2e6;"><span class="method get">GET</span></td>
+                            <td style="padding: 0.75rem; border-bottom: 1px solid #dee2e6;"><code>/budget</code></td>
+                            <td style="padding: 0.75rem; border-bottom: 1px solid #dee2e6;">Get all user budgets</td>
+                            <td style="padding: 0.75rem; border-bottom: 1px solid #dee2e6;"><span class="badge auth">Yes</span></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.75rem; border-bottom: 1px solid #dee2e6;"><span class="method get">GET</span></td>
+                            <td style="padding: 0.75rem; border-bottom: 1px solid #dee2e6;"><code>/budget?budgetId=&lt;id&gt;</code></td>
+                            <td style="padding: 0.75rem; border-bottom: 1px solid #dee2e6;">Get specific budget</td>
+                            <td style="padding: 0.75rem; border-bottom: 1px solid #dee2e6;"><span class="badge auth">Yes</span></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.75rem; border-bottom: 1px solid #dee2e6;"><span class="method get">GET</span></td>
+                            <td style="padding: 0.75rem; border-bottom: 1px solid #dee2e6;"><code>/budget?primaryOnly=true</code></td>
+                            <td style="padding: 0.75rem; border-bottom: 1px solid #dee2e6;">Get primary budget</td>
+                            <td style="padding: 0.75rem; border-bottom: 1px solid #dee2e6;"><span class="badge auth">Yes</span></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.75rem; border-bottom: 1px solid #dee2e6;"><span class="method get">GET</span></td>
+                            <td style="padding: 0.75rem; border-bottom: 1px solid #dee2e6;"><code>/cost-usage</code></td>
+                            <td style="padding: 0.75rem; border-bottom: 1px solid #dee2e6;">Get cost and usage data</td>
+                            <td style="padding: 0.75rem; border-bottom: 1px solid #dee2e6;"><span class="badge auth">Yes</span></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.75rem;"><span class="method post">POST</span></td>
+                            <td style="padding: 0.75rem;"><code>/alerts/trigger</code></td>
+                            <td style="padding: 0.75rem;">Trigger cost alerts</td>
+                            <td style="padding: 0.75rem;"><span class="badge auth">Yes</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <footer>
+            <p>CostGuard API Documentation - Built with ❤️ for AWS Cost Management</p>
+            <p>Last updated: June 2025</p>
+        </footer>
+    </div>
+</body>
+</html>

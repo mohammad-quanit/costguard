@@ -1,0 +1,383 @@
+{
+  "info": {
+    "name": "CostGuard API Collection",
+    "description": "Complete API collection for CostGuard - AWS Cost Monitoring System",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://dl6q0k9s90.execute-api.us-east-1.amazonaws.com/dev",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "User Registration",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"SecurePass123!\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/signup",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "signup"]
+            },
+            "description": "Register a new user account"
+          }
+        },
+        {
+          "name": "User Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"SecurePass123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/signin",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "signin"]
+            },
+            "description": "Authenticate user and get access tokens"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('accessToken', response.tokens.accessToken);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "refresh"]
+            },
+            "description": "Refresh access token using refresh token"
+          }
+        }
+      ]
+    },
+    {
+      "name": "User Profile",
+      "item": [
+        {
+          "name": "Get User Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "profile"]
+            },
+            "description": "Get authenticated user's profile information"
+          }
+        },
+        {
+          "name": "Update User Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Smith\",\n  \"preferences\": {\n    \"emailNotifications\": true,\n    \"currency\": \"USD\",\n    \"timezone\": \"America/New_York\"\n  },\n  \"costSettings\": {\n    \"monthlyBudget\": 750,\n    \"alertThreshold\": 85,\n    \"alertFrequency\": \"weekly\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "profile"]
+            },
+            "description": "Update user profile information"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Budget Management",
+      "item": [
+        {
+          "name": "Create Budget",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"budgetName\": \"Production Budget\",\n  \"monthlyLimit\": 500,\n  \"currency\": \"USD\",\n  \"alertThreshold\": 80,\n  \"alertFrequency\": \"daily\",\n  \"services\": [\"EC2\", \"S3\", \"Lambda\"],\n  \"tags\": {\n    \"Environment\": \"production\",\n    \"Project\": \"costguard\"\n  },\n  \"notifications\": {\n    \"email\": true,\n    \"sns\": false,\n    \"slack\": false\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/budget/set",
+              "host": ["{{baseUrl}}"],
+              "path": ["budget", "set"]
+            },
+            "description": "Create a new budget"
+          }
+        },
+        {
+          "name": "Update Budget",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"budgetId\": \"a10ba90d-48de-4258-9e7b-9480dfd7617e\",\n  \"monthlyLimit\": 750,\n  \"alertThreshold\": 90\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/budget/set",
+              "host": ["{{baseUrl}}"],
+              "path": ["budget", "set"]
+            },
+            "description": "Update an existing budget"
+          }
+        },
+        {
+          "name": "Get All Budgets",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/budget",
+              "host": ["{{baseUrl}}"],
+              "path": ["budget"]
+            },
+            "description": "Get all budgets for the authenticated user"
+          }
+        },
+        {
+          "name": "Get Specific Budget",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/budget?budgetId=a10ba90d-48de-4258-9e7b-9480dfd7617e",
+              "host": ["{{baseUrl}}"],
+              "path": ["budget"],
+              "query": [
+                {
+                  "key": "budgetId",
+                  "value": "a10ba90d-48de-4258-9e7b-9480dfd7617e"
+                }
+              ]
+            },
+            "description": "Get a specific budget by ID"
+          }
+        },
+        {
+          "name": "Get Primary Budget",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/budget?primaryOnly=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["budget"],
+              "query": [
+                {
+                  "key": "primaryOnly",
+                  "value": "true"
+                }
+              ]
+            },
+            "description": "Get only the primary/default budget"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cost Monitoring",
+      "item": [
+        {
+          "name": "Get Cost Data",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cost-usage",
+              "host": ["{{baseUrl}}"],
+              "path": ["cost-usage"]
+            },
+            "description": "Get AWS cost and usage data"
+          }
+        },
+        {
+          "name": "Get Cost Data with Parameters",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/cost-usage?startDate=2025-06-01&endDate=2025-06-30&granularity=DAILY&groupBy=SERVICE",
+              "host": ["{{baseUrl}}"],
+              "path": ["cost-usage"],
+              "query": [
+                {
+                  "key": "startDate",
+                  "value": "2025-06-01"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2025-06-30"
+                },
+                {
+                  "key": "granularity",
+                  "value": "DAILY"
+                },
+                {
+                  "key": "groupBy",
+                  "value": "SERVICE"
+                }
+              ]
+            },
+            "description": "Get cost data with specific parameters"
+          }
+        },
+        {
+          "name": "Trigger Cost Alerts",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{baseUrl}}/alerts/trigger",
+              "host": ["{{baseUrl}}"],
+              "path": ["alerts", "trigger"]
+            },
+            "description": "Manually trigger cost alert checking"
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ]
+}
