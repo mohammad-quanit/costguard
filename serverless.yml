@@ -64,6 +64,8 @@ provider:
         - Effect: Allow
           Action:
             - sns:Publish
+            - ses:SendEmail
+            - ses:SendRawEmail
           Resource: "*"
 
 functions:
@@ -139,12 +141,45 @@ functions:
     events:
       - schedule: rate(1 day)
 
-  triggerCostAlert:
-    handler: src/functions/CostAlert/costAlertHandler.handler
-    description: "Manual trigger for cost alerts (for testing)"
+  # New Alert Processing Functions
+  alertProcessor:
+    handler: src/functions/Alerts/alertProcessor.handler
+    description: "Scheduled alert processor for budget monitoring"
+    timeout: 300
+    memorySize: 1024
+    events:
+      - schedule:
+          rate: rate(1 hour) # Run every hour
+          enabled: true
+    environment:
+      CLOUD_BUDGET_SETTINGS_TABLE: !Ref CloudBudgetSettingsTable
+      ALERT_SNS_TOPIC: !Ref AlertSNSTopic
+      FROM_EMAIL: ${env:FROM_EMAIL, "muhammadquanit@gmail.com"}
+      DEFAULT_ALERT_EMAIL: ${env:DEFAULT_ALERT_EMAIL, "muhammadquanit@gmail.com"}
+
+  triggerAlerts:
+    handler: src/functions/Alerts/triggerAlerts.handler
+    description: "Manual alert trigger API endpoint"
+    timeout: 300
+    memorySize: 1024
     events:
       - http:
           path: alerts/trigger
+          method: post
+          cors: true
+    environment:
+      CLOUD_BUDGET_SETTINGS_TABLE: !Ref CloudBudgetSettingsTable
+      ALERT_SNS_TOPIC: !Ref AlertSNSTopic
+      FROM_EMAIL: ${env:FROM_EMAIL, ""}
+      DEFAULT_ALERT_EMAIL: ${env:DEFAULT_ALERT_EMAIL, "muhammadquanit@gmail.com"}
+
+  # Legacy alert function (keeping for backward compatibility)
+  triggerCostAlert:
+    handler: src/functions/CostAlert/costAlertHandler.handler
+    description: "Manual trigger for cost alerts (legacy - for testing)"
+    events:
+      - http:
+          path: alerts/trigger-legacy
           method: post
           cors: true
 
@@ -159,6 +194,13 @@ functions:
 
 resources:
   Resources:
+    # SNS Topic for Budget Alerts
+    AlertSNSTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        TopicName: ${self:service}-budget-alerts-${sls:stage}
+        DisplayName: CostGuard Budget Alerts
+
     # Cognito User Pool
     CostGuardUserPool:
       Type: AWS::Cognito::UserPool

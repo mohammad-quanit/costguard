@@ -68,14 +68,14 @@ exports.handler = async(event) => {
     // Check if this is an update to an existing budget (by budgetId) or creating a new one
     const { budgetId: requestedBudgetId } = body;
     let existingBudget = null;
-    
+
     if (requestedBudgetId) {
       // User wants to update a specific budget
       existingBudget = await getBudget(user.userId, requestedBudgetId);
       if (!existingBudget) {
         return createResponse(404, {
           error: 'Budget not found',
-          message: 'Budget not found for this user'
+          message: 'Budget not found for this user',
         });
       }
     }
