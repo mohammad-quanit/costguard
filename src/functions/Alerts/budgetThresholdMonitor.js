@@ -15,18 +15,18 @@ exports.handler = async(event) => {
   try {
     // Get current AWS costs
     const costExplorerService = new CostExplorerService();
-    
+
     // Get current month date range
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const today = new Date();
-    
+
     const costData = await costExplorerService.getCostAndUsage({
       start: startOfMonth.toISOString().split('T')[0],
       end: today.toISOString().split('T')[0],
-      granularity: 'MONTHLY'
+      granularity: 'MONTHLY',
     });
-    
+
     // Extract current month cost from the response
     let currentMonthCost = 0;
     if (costData && costData.ResultsByTime && costData.ResultsByTime.length > 0) {
@@ -35,32 +35,32 @@ exports.handler = async(event) => {
         currentMonthCost = parseFloat(result.Total.BlendedCost.Amount) || 0;
       }
     }
-    
+
     // 🚨 DUMMY VALUES FOR TESTING - REMOVE IN PRODUCTION 🚨
     // Override with dummy cost values to trigger alerts for testing
     // This simulates high AWS spending that crosses budget thresholds
-    
+
     // SCENARIO 1: Moderate spending - will trigger some alerts
-    currentMonthCost = 25.50; // Dummy cost that will trigger alerts
-    
+    // currentMonthCost = 25.50; // Dummy cost that will trigger alerts
+
     // SCENARIO 2: High spending - will trigger most alerts (uncomment to test)
     // currentMonthCost = 85.00; // Will trigger alerts for budgets with limits < $100
-    
+
     // SCENARIO 3: Very high spending - will trigger all alerts (uncomment to test)
     // currentMonthCost = 150.00; // Will trigger alerts for all budgets
-    
+
     // SCENARIO 4: Low spending - will trigger no alerts (uncomment to test)
-    // currentMonthCost = 5.00; // Will not trigger any alerts
-    
+    currentMonthCost = 5.00; // Will not trigger any alerts
+
     console.log('🧪 TESTING MODE: Using dummy currentMonthCost =', currentMonthCost);
-    
+
     // Expected behavior with currentMonthCost = $25.50:
     // - Budget: "mquanit Budget" ($20 limit, 75% threshold = $15) → ALERT ✅ (25.50 > 15)
     // - Budget: "costguard Budget" ($40 limit, 72% threshold = $28.8) → NO ALERT ❌ (25.50 < 28.8)
     // - Any budget with limit > $32 and threshold 80% → NO ALERT ❌
     // - Any budget with limit < $26 → LIKELY ALERT ✅
     // 🚨 END DUMMY VALUES 🚨
-    
+
     console.log(`Current month cost: $${currentMonthCost}`);
 
     // Get all active app budgets
@@ -81,7 +81,7 @@ exports.handler = async(event) => {
         // Check if threshold is crossed
         if (currentMonthCost >= thresholdAmount) {
           const utilization = budgetLimit > 0 ? (currentMonthCost / budgetLimit) * 100 : 0;
-          
+
           // Get user details
           const user = await getUserById(budget.userId);
           if (!user || !user.isActive) {
@@ -93,14 +93,14 @@ exports.handler = async(event) => {
 
           // Send email alert
           await sendThresholdAlert(user, budget, currentMonthCost, utilization);
-          
+
           alertsSent.push({
             userId: user.userId,
             email: user.email,
             budgetName: budget.budgetName,
             utilization: Math.round(utilization * 100) / 100,
             currentCost: currentMonthCost,
-            thresholdAmount: thresholdAmount
+            thresholdAmount: thresholdAmount,
           });
 
           console.log(`📧 Alert sent to ${user.email} for budget: ${budget.budgetName} (${utilization.toFixed(1)}% utilization)`);
@@ -120,8 +120,8 @@ exports.handler = async(event) => {
         budgetsChecked: budgets.length,
         alertsSent: alertsSent.length,
         alerts: alertsSent,
-        testingMode: true // Indicates dummy values are being used
-      })
+        testingMode: true, // Indicates dummy values are being used
+      }),
     };
 
   } catch (error) {
@@ -136,25 +136,25 @@ exports.handler = async(event) => {
 async function sendThresholdAlert(user, budget, currentCost, utilization) {
   const isExceeded = currentCost >= budget.monthlyLimit;
   const severity = isExceeded ? 'CRITICAL' : utilization >= 90 ? 'HIGH' : 'MEDIUM';
-  
+
   const emailParams = {
     Source: process.env.FROM_EMAIL || 'muhammadquanit@gmail.com',
     Destination: {
-      ToAddresses: [user.email]
+      ToAddresses: [user.email],
     },
     Message: {
       Subject: {
-        Data: `🚨 CostGuard Alert: ${isExceeded ? 'Budget Exceeded' : 'Threshold Reached'} - ${budget.budgetName}`
+        Data: `🚨 CostGuard Alert: ${isExceeded ? 'Budget Exceeded' : 'Threshold Reached'} - ${budget.budgetName}`,
       },
       Body: {
         Html: {
-          Data: generateEmailHtml(user, budget, currentCost, utilization, severity)
+          Data: generateEmailHtml(user, budget, currentCost, utilization, severity),
         },
         Text: {
-          Data: generateEmailText(user, budget, currentCost, utilization, severity)
-        }
-      }
-    }
+          Data: generateEmailText(user, budget, currentCost, utilization, severity),
+        },
+      },
+    },
   };
 
   const command = new SendEmailCommand(emailParams);
@@ -167,7 +167,7 @@ async function sendThresholdAlert(user, budget, currentCost, utilization) {
 function generateEmailHtml(user, budget, currentCost, utilization, severity) {
   const isExceeded = currentCost >= budget.monthlyLimit;
   const remainingBudget = Math.max(0, budget.monthlyLimit - currentCost);
-  
+
   return `
     <!DOCTYPE html>
     <html>
@@ -228,7 +228,7 @@ function generateEmailHtml(user, budget, currentCost, utilization, severity) {
 function generateEmailText(user, budget, currentCost, utilization, severity) {
   const isExceeded = currentCost >= budget.monthlyLimit;
   const remainingBudget = Math.max(0, budget.monthlyLimit - currentCost);
-  
+
   return `
 CostGuard Budget Alert - ${isExceeded ? 'Budget Exceeded!' : 'Threshold Reached!'}
 

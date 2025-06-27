@@ -667,30 +667,30 @@
     "serviceProviderAwsCfStackName": "CostGuard-local",
     "serviceProviderAwsCfStackId": "arn:aws:cloudformation:us-east-1:605246879659:stack/CostGuard-local/e6694f70-5391-11f0-a17f-12acc2e88c23",
     "serviceProviderAwsCfStackCreated": "2025-06-27T20:04:15.086Z",
-    "serviceProviderAwsCfStackUpdated": "2025-06-27T22:32:44.182Z",
+    "serviceProviderAwsCfStackUpdated": "2025-06-27T23:03:59.645Z",
     "serviceProviderAwsCfStackStatus": "UPDATE_COMPLETE",
     "serviceProviderAwsCfStackOutputs": [
       {
         "OutputKey": "SignInLambdaFunctionQualifiedArn",
-        "OutputValue": "arn:aws:lambda:us-east-1:605246879659:function:CostGuard-local-signIn:6",
+        "OutputValue": "arn:aws:lambda:us-east-1:605246879659:function:CostGuard-local-signIn:7",
         "Description": "Current Lambda function version",
         "ExportName": "sls-CostGuard-local-SignInLambdaFunctionQualifiedArn"
       },
       {
         "OutputKey": "GetCostDataLambdaFunctionQualifiedArn",
-        "OutputValue": "arn:aws:lambda:us-east-1:605246879659:function:CostGuard-local-getCostData:11",
+        "OutputValue": "arn:aws:lambda:us-east-1:605246879659:function:CostGuard-local-getCostData:12",
         "Description": "Current Lambda function version",
         "ExportName": "sls-CostGuard-local-GetCostDataLambdaFunctionQualifiedArn"
       },
       {
         "OutputKey": "UpdateUserProfileLambdaFunctionQualifiedArn",
-        "OutputValue": "arn:aws:lambda:us-east-1:605246879659:function:CostGuard-local-updateUserProfile:6",
+        "OutputValue": "arn:aws:lambda:us-east-1:605246879659:function:CostGuard-local-updateUserProfile:7",
         "Description": "Current Lambda function version",
         "ExportName": "sls-CostGuard-local-UpdateUserProfileLambdaFunctionQualifiedArn"
       },
       {
         "OutputKey": "SignUpLambdaFunctionQualifiedArn",
-        "OutputValue": "arn:aws:lambda:us-east-1:605246879659:function:CostGuard-local-signUp:6",
+        "OutputValue": "arn:aws:lambda:us-east-1:605246879659:function:CostGuard-local-signUp:7",
         "Description": "Current Lambda function version",
         "ExportName": "sls-CostGuard-local-SignUpLambdaFunctionQualifiedArn"
       },
@@ -706,19 +706,19 @@
       },
       {
         "OutputKey": "TriggerAlertsLambdaFunctionQualifiedArn",
-        "OutputValue": "arn:aws:lambda:us-east-1:605246879659:function:CostGuard-local-triggerAlerts:5",
+        "OutputValue": "arn:aws:lambda:us-east-1:605246879659:function:CostGuard-local-triggerAlerts:6",
         "Description": "Current Lambda function version",
         "ExportName": "sls-CostGuard-local-TriggerAlertsLambdaFunctionQualifiedArn"
       },
       {
         "OutputKey": "DeleteBudgetLambdaFunctionQualifiedArn",
-        "OutputValue": "arn:aws:lambda:us-east-1:605246879659:function:CostGuard-local-deleteBudget:3",
+        "OutputValue": "arn:aws:lambda:us-east-1:605246879659:function:CostGuard-local-deleteBudget:4",
         "Description": "Current Lambda function version",
         "ExportName": "sls-CostGuard-local-DeleteBudgetLambdaFunctionQualifiedArn"
       },
       {
         "OutputKey": "SetBudgetLambdaFunctionQualifiedArn",
-        "OutputValue": "arn:aws:lambda:us-east-1:605246879659:function:CostGuard-local-setBudget:5",
+        "OutputValue": "arn:aws:lambda:us-east-1:605246879659:function:CostGuard-local-setBudget:6",
         "Description": "Current Lambda function version",
         "ExportName": "sls-CostGuard-local-SetBudgetLambdaFunctionQualifiedArn"
       },
@@ -729,13 +729,13 @@
       },
       {
         "OutputKey": "SesEmailVerifierLambdaFunctionQualifiedArn",
-        "OutputValue": "arn:aws:lambda:us-east-1:605246879659:function:CostGuard-local-sesEmailVerifier:5",
+        "OutputValue": "arn:aws:lambda:us-east-1:605246879659:function:CostGuard-local-sesEmailVerifier:6",
         "Description": "Current Lambda function version",
         "ExportName": "sls-CostGuard-local-SesEmailVerifierLambdaFunctionQualifiedArn"
       },
       {
         "OutputKey": "BudgetThresholdMonitorLambdaFunctionQualifiedArn",
-        "OutputValue": "arn:aws:lambda:us-east-1:605246879659:function:CostGuard-local-budgetThresholdMonitor:1",
+        "OutputValue": "arn:aws:lambda:us-east-1:605246879659:function:CostGuard-local-budgetThresholdMonitor:2",
         "Description": "Current Lambda function version",
         "ExportName": "sls-CostGuard-local-BudgetThresholdMonitorLambdaFunctionQualifiedArn"
       },
@@ -746,25 +746,25 @@
       },
       {
         "OutputKey": "GetBudgetLambdaFunctionQualifiedArn",
-        "OutputValue": "arn:aws:lambda:us-east-1:605246879659:function:CostGuard-local-getBudget:5",
+        "OutputValue": "arn:aws:lambda:us-east-1:605246879659:function:CostGuard-local-getBudget:6",
         "Description": "Current Lambda function version",
         "ExportName": "sls-CostGuard-local-GetBudgetLambdaFunctionQualifiedArn"
       },
       {
         "OutputKey": "GetUserProfileLambdaFunctionQualifiedArn",
-        "OutputValue": "arn:aws:lambda:us-east-1:605246879659:function:CostGuard-local-getUserProfile:6",
+        "OutputValue": "arn:aws:lambda:us-east-1:605246879659:function:CostGuard-local-getUserProfile:7",
         "Description": "Current Lambda function version",
         "ExportName": "sls-CostGuard-local-GetUserProfileLambdaFunctionQualifiedArn"
       },
       {
         "OutputKey": "CostAlertLambdaFunctionQualifiedArn",
-        "OutputValue": "arn:aws:lambda:us-east-1:605246879659:function:CostGuard-local-costAlert:11",
+        "OutputValue": "arn:aws:lambda:us-east-1:605246879659:function:CostGuard-local-costAlert:12",
         "Description": "Current Lambda function version",
         "ExportName": "sls-CostGuard-local-CostAlertLambdaFunctionQualifiedArn"
       },
       {
         "OutputKey": "RefreshTokenLambdaFunctionQualifiedArn",
-        "OutputValue": "arn:aws:lambda:us-east-1:605246879659:function:CostGuard-local-refreshToken:6",
+        "OutputValue": "arn:aws:lambda:us-east-1:605246879659:function:CostGuard-local-refreshToken:7",
         "Description": "Current Lambda function version",
         "ExportName": "sls-CostGuard-local-RefreshTokenLambdaFunctionQualifiedArn"
       },
