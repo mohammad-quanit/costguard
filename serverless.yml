@@ -202,6 +202,11 @@ functions:
     handler: src/functions/Auth/sesEmailVerifier.handler
     description: "Automatically verify user emails in SES after Cognito confirmation"
     timeout: 30
+    events:
+      - cognitoUserPool:
+          pool: CostGuardUserPool
+          trigger: PostConfirmation
+          existing: true
 
 resources:
   Resources:
@@ -243,17 +248,6 @@ resources:
             Mutable: true
         EmailConfiguration:
           EmailSendingAccount: COGNITO_DEFAULT
-
-    # Lambda Permission for Cognito to invoke SES Email Verifier
-    SesEmailVerifierCognitoPermission:
-      Type: AWS::Lambda::Permission
-      Properties:
-        FunctionName: !Ref SesEmailVerifierLambdaFunction
-        Action: lambda:InvokeFunction
-        Principal: cognito-idp.amazonaws.com
-        SourceArn: !Sub 
-          - arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${UserPoolId}
-          - UserPoolId: !Ref CostGuardUserPool
 
     # Cognito User Pool Client
     CostGuardUserPoolClient:
