@@ -6,13 +6,13 @@ const sesClient = new SESClient({ region: process.env.AWS_REGION || 'us-east-1' 
  * Cognito Post-Confirmation Trigger
  * Automatically verifies user email in SES after Cognito confirmation
  */
-exports.handler = async (event) => {
+exports.handler = async(event) => {
   console.log('🔔 Cognito Post-Confirmation Trigger activated:', JSON.stringify(event, null, 2));
 
   try {
     // Extract email from Cognito event
     const email = event.request?.userAttributes?.email;
-    
+
     if (!email) {
       console.log('❌ No email found in Cognito user attributes');
       console.log('Available attributes:', Object.keys(event.request?.userAttributes || {}));
@@ -25,9 +25,9 @@ exports.handler = async (event) => {
     console.log('🔍 Checking if email is already verified in SES...');
     const listCommand = new ListVerifiedEmailAddressesCommand({});
     const verifiedEmails = await sesClient.send(listCommand);
-    
+
     console.log('Currently verified emails in SES:', verifiedEmails.VerifiedEmailAddresses);
-    
+
     if (verifiedEmails.VerifiedEmailAddresses.includes(email)) {
       console.log(`✅ Email ${email} is already verified in SES`);
       return event;
@@ -36,7 +36,7 @@ exports.handler = async (event) => {
     // Initiate email verification in SES
     console.log(`🚀 Initiating SES verification for: ${email}`);
     const verifyCommand = new VerifyEmailIdentityCommand({
-      EmailAddress: email
+      EmailAddress: email,
     });
 
     await sesClient.send(verifyCommand);
@@ -49,9 +49,9 @@ exports.handler = async (event) => {
       name: error.name,
       message: error.message,
       code: error.Code,
-      statusCode: error.$metadata?.httpStatusCode
+      statusCode: error.$metadata?.httpStatusCode,
     });
-    
+
     // Don't fail the Cognito flow - just log the error
     // The user can still use the app, but email notifications might not work until manually verified
   }
