@@ -47,6 +47,8 @@ provider:
             - cognito-idp:AdminUpdateUserAttributes
             - cognito-idp:AdminDeleteUser
             - cognito-idp:ListUsers
+            - cognito-idp:UpdateUserPool
+            - cognito-idp:DescribeUserPool
           Resource: !GetAtt CostGuardUserPool.Arn
         - Effect: Allow
           Action:

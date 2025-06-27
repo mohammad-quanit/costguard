@@ -166,7 +166,9 @@
                     "cognito-idp:AdminGetUser",
                     "cognito-idp:AdminUpdateUserAttributes",
                     "cognito-idp:AdminDeleteUser",
-                    "cognito-idp:ListUsers"
+                    "cognito-idp:ListUsers",
+                    "cognito-idp:UpdateUserPool",
+                    "cognito-idp:DescribeUserPool"
                   ],
                   "Resource": {
                     "Fn::GetAtt": [
@@ -243,7 +245,7 @@
       "Properties": {
         "Code": {
           "S3Bucket": "serverless-framework-deployments-us-east-1-de0c9720-9574",
-          "S3Key": "serverless/CostGuard/dev/1751050125115-2025-06-27T18:48:45.115Z/CostGuard.zip"
+          "S3Key": "serverless/CostGuard/dev/1751050909893-2025-06-27T19:01:49.893Z/CostGuard.zip"
         },
         "Handler": "src/functions/Auth/signUp.handler",
         "Runtime": "nodejs22.x",
@@ -289,7 +291,7 @@
       "Properties": {
         "Code": {
           "S3Bucket": "serverless-framework-deployments-us-east-1-de0c9720-9574",
-          "S3Key": "serverless/CostGuard/dev/1751050125115-2025-06-27T18:48:45.115Z/CostGuard.zip"
+          "S3Key": "serverless/CostGuard/dev/1751050909893-2025-06-27T19:01:49.893Z/CostGuard.zip"
         },
         "Handler": "src/functions/Auth/signIn.handler",
         "Runtime": "nodejs22.x",
@@ -335,7 +337,7 @@
       "Properties": {
         "Code": {
           "S3Bucket": "serverless-framework-deployments-us-east-1-de0c9720-9574",
-          "S3Key": "serverless/CostGuard/dev/1751050125115-2025-06-27T18:48:45.115Z/CostGuard.zip"
+          "S3Key": "serverless/CostGuard/dev/1751050909893-2025-06-27T19:01:49.893Z/CostGuard.zip"
         },
         "Handler": "src/functions/Auth/refreshToken.handler",
         "Runtime": "nodejs22.x",
@@ -381,7 +383,7 @@
       "Properties": {
         "Code": {
           "S3Bucket": "serverless-framework-deployments-us-east-1-de0c9720-9574",
-          "S3Key": "serverless/CostGuard/dev/1751050125115-2025-06-27T18:48:45.115Z/CostGuard.zip"
+          "S3Key": "serverless/CostGuard/dev/1751050909893-2025-06-27T19:01:49.893Z/CostGuard.zip"
         },
         "Handler": "src/functions/Auth/getUserProfile.handler",
         "Runtime": "nodejs22.x",
@@ -427,7 +429,7 @@
       "Properties": {
         "Code": {
           "S3Bucket": "serverless-framework-deployments-us-east-1-de0c9720-9574",
-          "S3Key": "serverless/CostGuard/dev/1751050125115-2025-06-27T18:48:45.115Z/CostGuard.zip"
+          "S3Key": "serverless/CostGuard/dev/1751050909893-2025-06-27T19:01:49.893Z/CostGuard.zip"
         },
         "Handler": "src/functions/Auth/updateUserProfile.handler",
         "Runtime": "nodejs22.x",
@@ -473,7 +475,7 @@
       "Properties": {
         "Code": {
           "S3Bucket": "serverless-framework-deployments-us-east-1-de0c9720-9574",
-          "S3Key": "serverless/CostGuard/dev/1751050125115-2025-06-27T18:48:45.115Z/CostGuard.zip"
+          "S3Key": "serverless/CostGuard/dev/1751050909893-2025-06-27T19:01:49.893Z/CostGuard.zip"
         },
         "Handler": "src/functions/Budget/setBudgetHandler.handler",
         "Runtime": "nodejs22.x",
@@ -519,7 +521,7 @@
       "Properties": {
         "Code": {
           "S3Bucket": "serverless-framework-deployments-us-east-1-de0c9720-9574",
-          "S3Key": "serverless/CostGuard/dev/1751050125115-2025-06-27T18:48:45.115Z/CostGuard.zip"
+          "S3Key": "serverless/CostGuard/dev/1751050909893-2025-06-27T19:01:49.893Z/CostGuard.zip"
         },
         "Handler": "src/functions/Budget/getBudgetHandler.handler",
         "Runtime": "nodejs22.x",
@@ -565,7 +567,7 @@
       "Properties": {
         "Code": {
           "S3Bucket": "serverless-framework-deployments-us-east-1-de0c9720-9574",
-          "S3Key": "serverless/CostGuard/dev/1751050125115-2025-06-27T18:48:45.115Z/CostGuard.zip"
+          "S3Key": "serverless/CostGuard/dev/1751050909893-2025-06-27T19:01:49.893Z/CostGuard.zip"
         },
         "Handler": "src/functions/CostAlert/costAlertHandler.handler",
         "Runtime": "nodejs22.x",
@@ -611,7 +613,7 @@
       "Properties": {
         "Code": {
           "S3Bucket": "serverless-framework-deployments-us-east-1-de0c9720-9574",
-          "S3Key": "serverless/CostGuard/dev/1751050125115-2025-06-27T18:48:45.115Z/CostGuard.zip"
+          "S3Key": "serverless/CostGuard/dev/1751050909893-2025-06-27T19:01:49.893Z/CostGuard.zip"
         },
         "Handler": "src/functions/Alerts/alertProcessor.handler",
         "Runtime": "nodejs22.x",
@@ -662,7 +664,7 @@
       "Properties": {
         "Code": {
           "S3Bucket": "serverless-framework-deployments-us-east-1-de0c9720-9574",
-          "S3Key": "serverless/CostGuard/dev/1751050125115-2025-06-27T18:48:45.115Z/CostGuard.zip"
+          "S3Key": "serverless/CostGuard/dev/1751050909893-2025-06-27T19:01:49.893Z/CostGuard.zip"
         },
         "Handler": "src/functions/Alerts/triggerAlerts.handler",
         "Runtime": "nodejs22.x",
@@ -713,7 +715,7 @@
       "Properties": {
         "Code": {
           "S3Bucket": "serverless-framework-deployments-us-east-1-de0c9720-9574",
-          "S3Key": "serverless/CostGuard/dev/1751050125115-2025-06-27T18:48:45.115Z/CostGuard.zip"
+          "S3Key": "serverless/CostGuard/dev/1751050909893-2025-06-27T19:01:49.893Z/CostGuard.zip"
         },
         "Handler": "src/functions/CostData/index.GetCostAndUsageHandler",
         "Runtime": "nodejs22.x",
@@ -759,7 +761,7 @@
       "Properties": {
         "Code": {
           "S3Bucket": "serverless-framework-deployments-us-east-1-de0c9720-9574",
-          "S3Key": "serverless/CostGuard/dev/1751050125115-2025-06-27T18:48:45.115Z/CostGuard.zip"
+          "S3Key": "serverless/CostGuard/dev/1751050909893-2025-06-27T19:01:49.893Z/CostGuard.zip"
         },
         "Handler": "src/functions/Auth/sesEmailVerifier.handler",
         "Runtime": "nodejs22.x",
@@ -800,135 +802,135 @@
         "SesEmailVerifierLogGroup"
       ]
     },
-    "SignUpLambdaVersionrA4VNHd9X32PtkIZeKEdFOw8KSe7o86yEwB34N0uA": {
+    "SignUpLambdaVersionY0h7zoUg306F68usrC7JwPTtRRwJk85R7JuJkEHE": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "SignUpLambdaFunction"
         },
-        "CodeSha256": "5Q/D3M4MX/t7Up3uJfpnLSRjVzpd+kSQ0kuBvYNsobo=",
+        "CodeSha256": "ov9F2p20HV2rD8BM9hLHjGXL+9yHbsU3wX3nJn625nE=",
         "Description": "User registration with Cognito"
       }
     },
-    "SignInLambdaVersion8sMvixCWO1lo1Vgwyp8huE5azTpFNIfuSS7iHyDqwkQ": {
+    "SignInLambdaVersionYragR9v2YN2QbXI0IsvVUyhJB5aOMkBjqppcEHrFssI": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "SignInLambdaFunction"
         },
-        "CodeSha256": "5Q/D3M4MX/t7Up3uJfpnLSRjVzpd+kSQ0kuBvYNsobo=",
+        "CodeSha256": "ov9F2p20HV2rD8BM9hLHjGXL+9yHbsU3wX3nJn625nE=",
         "Description": "User login with Cognito"
       }
     },
-    "RefreshTokenLambdaVersiongjyvC5EhFICmfr8I9vJlbVCZSeaNI1l5EF8lJzZogE": {
+    "RefreshTokenLambdaVersiony7sf87BMNIdugIgLVE5YztBicYMM0WpY8uqdxn83TQA": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "RefreshTokenLambdaFunction"
         },
-        "CodeSha256": "5Q/D3M4MX/t7Up3uJfpnLSRjVzpd+kSQ0kuBvYNsobo=",
+        "CodeSha256": "ov9F2p20HV2rD8BM9hLHjGXL+9yHbsU3wX3nJn625nE=",
         "Description": "Refresh JWT token"
       }
     },
-    "GetUserProfileLambdaVersion3ZkmrwPchYbnpkawSrl49byP7rtml5TTnykZ3FIxKyc": {
+    "GetUserProfileLambdaVersionjDNZeuYntPBvU6DRdtRU1exd7jH3ym8QxNCIvIcaaI": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "GetUserProfileLambdaFunction"
         },
-        "CodeSha256": "5Q/D3M4MX/t7Up3uJfpnLSRjVzpd+kSQ0kuBvYNsobo=",
+        "CodeSha256": "ov9F2p20HV2rD8BM9hLHjGXL+9yHbsU3wX3nJn625nE=",
         "Description": "Get user profile information"
       }
     },
-    "UpdateUserProfileLambdaVersionqDrOGsSpts83S2ose65ztmtvnXoLM5mxWa8feirA": {
+    "UpdateUserProfileLambdaVersionyuJ424By8GFE9MBzIvmxFO0m1PWt2Z111wYUGMoZng": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "UpdateUserProfileLambdaFunction"
         },
-        "CodeSha256": "5Q/D3M4MX/t7Up3uJfpnLSRjVzpd+kSQ0kuBvYNsobo=",
+        "CodeSha256": "ov9F2p20HV2rD8BM9hLHjGXL+9yHbsU3wX3nJn625nE=",
         "Description": "Update user profile information"
       }
     },
-    "SetBudgetLambdaVersionoFC7UJTcEtRCtlM0b2wZlVxavlBNfHJteRIehVNOY": {
+    "SetBudgetLambdaVersionKZ5ZrRddbWQgTFPwmGqcfRTiT3gg55uPtt3LsRJp0": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "SetBudgetLambdaFunction"
         },
-        "CodeSha256": "5Q/D3M4MX/t7Up3uJfpnLSRjVzpd+kSQ0kuBvYNsobo=",
+        "CodeSha256": "ov9F2p20HV2rD8BM9hLHjGXL+9yHbsU3wX3nJn625nE=",
         "Description": "Set or update user's cloud budget settings"
       }
     },
-    "GetBudgetLambdaVersionQsslNekAxkhGokYdIZjmh0s3x57hAqv7tENMqyNuSlY": {
+    "GetBudgetLambdaVersiondI72XzZHmPXusREkWzq7Y09kM1RKAxsP0dje63Nx8sY": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "GetBudgetLambdaFunction"
         },
-        "CodeSha256": "5Q/D3M4MX/t7Up3uJfpnLSRjVzpd+kSQ0kuBvYNsobo=",
+        "CodeSha256": "ov9F2p20HV2rD8BM9hLHjGXL+9yHbsU3wX3nJn625nE=",
         "Description": "Get user's current budget settings"
       }
     },
-    "CostAlertLambdaVersionsW1dZfonb4SwddDKBTkwjdGgf22FPeCc6qliGHscYEY": {
+    "CostAlertLambdaVersion4J8JVdPvrI1MiBVAqld71KSCFtX6WYtBtpZfIr5BO4": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "CostAlertLambdaFunction"
         },
-        "CodeSha256": "5Q/D3M4MX/t7Up3uJfpnLSRjVzpd+kSQ0kuBvYNsobo=",
+        "CodeSha256": "ov9F2p20HV2rD8BM9hLHjGXL+9yHbsU3wX3nJn625nE=",
         "Description": "Scheduled Lambda to check AWS cost and alert users"
       }
     },
-    "AlertProcessorLambdaVersionwbUOzU0i4lyGkV7P1Z8lZKNJsZaSbjuByXSUIuZPGVE": {
+    "AlertProcessorLambdaVersionn9TTiqovuwqy1zYChI5okaqcfxVGrb28pu4gizgDk": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "AlertProcessorLambdaFunction"
         },
-        "CodeSha256": "5Q/D3M4MX/t7Up3uJfpnLSRjVzpd+kSQ0kuBvYNsobo=",
+        "CodeSha256": "ov9F2p20HV2rD8BM9hLHjGXL+9yHbsU3wX3nJn625nE=",
         "Description": "Scheduled alert processor for budget monitoring"
       }
     },
-    "TriggerAlertsLambdaVersionP5obgAeVPFKPW9iJ2dhpcoIMAcj2BfrUn7ZAyc49j4": {
+    "TriggerAlertsLambdaVersion8ng0YzWdiOY5Wq3GVDOICKtiFocCeYUwWvPDmlJLuOM": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "TriggerAlertsLambdaFunction"
         },
-        "CodeSha256": "5Q/D3M4MX/t7Up3uJfpnLSRjVzpd+kSQ0kuBvYNsobo=",
+        "CodeSha256": "ov9F2p20HV2rD8BM9hLHjGXL+9yHbsU3wX3nJn625nE=",
         "Description": "Manual alert trigger API endpoint"
       }
     },
-    "GetCostDataLambdaVersionf4Zc9lepIOjglMWhEVnHrrcYJFiDZN0mT6syMXvq17A": {
+    "GetCostDataLambdaVersionNvTBcwTKMN8yTRlaGfcEuDFfgFjcvZUdlusBebVBiBA": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "GetCostDataLambdaFunction"
         },
-        "CodeSha256": "5Q/D3M4MX/t7Up3uJfpnLSRjVzpd+kSQ0kuBvYNsobo=",
+        "CodeSha256": "ov9F2p20HV2rD8BM9hLHjGXL+9yHbsU3wX3nJn625nE=",
         "Description": "API to fetch cost data from DynamoDB (protected)"
       }
     },
-    "SesEmailVerifierLambdaVersionN5ppd4F0cGnPUOFfx03TW2eyT0vJ1gyoIWGMyZY": {
+    "SesEmailVerifierLambdaVersion6tRULLdSNcGh7E088vI2q93X3nZZ7FAOBOdx27qXHRA": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "SesEmailVerifierLambdaFunction"
         },
-        "CodeSha256": "5Q/D3M4MX/t7Up3uJfpnLSRjVzpd+kSQ0kuBvYNsobo=",
+        "CodeSha256": "ov9F2p20HV2rD8BM9hLHjGXL+9yHbsU3wX3nJn625nE=",
         "Description": "Automatically verify user emails in SES after Cognito confirmation"
       }
     },
@@ -1924,7 +1926,7 @@
         "GetCostDataLambdaPermissionApiGateway"
       ]
     },
-    "ApiGatewayDeployment1751050103908": {
+    "ApiGatewayDeployment1751050887991": {
       "Type": "AWS::ApiGateway::Deployment",
       "Properties": {
         "RestApiId": {
@@ -2356,6 +2358,47 @@
         }
       }
     },
+    "CognitoTriggerConfiguration": {
+      "Type": "AWS::CloudFormation::CustomResource",
+      "DependsOn": [
+        "SesEmailVerifierCognitoPermission",
+        "CostGuardUserPool"
+      ],
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "CognitoTriggerConfigLambdaFunction",
+            "Arn"
+          ]
+        },
+        "UserPoolId": {
+          "Ref": "CostGuardUserPool"
+        },
+        "LambdaFunctionArn": {
+          "Fn::GetAtt": [
+            "SesEmailVerifierLambdaFunction",
+            "Arn"
+          ]
+        }
+      }
+    },
+    "CognitoTriggerConfigLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "FunctionName": "CostGuard-cognito-trigger-config-dev",
+        "Runtime": "nodejs22.x",
+        "Handler": "index.handler",
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        },
+        "Code": {
+          "ZipFile": "const AWS = require('aws-sdk');\nconst response = require('cfn-response');\nconst cognito = new AWS.CognitoIdentityServiceProvider();\n\nexports.handler = async (event, context) => {\n  console.log('Event:', JSON.stringify(event, null, 2));\n  \n  try {\n    const { UserPoolId, LambdaFunctionArn } = event.ResourceProperties;\n    \n    if (event.RequestType === 'Create' || event.RequestType === 'Update') {\n      console.log('Configuring Cognito PostConfirmation trigger...');\n      \n      await cognito.updateUserPool({\n        UserPoolId: UserPoolId,\n        LambdaConfig: {\n          PostConfirmation: LambdaFunctionArn\n        }\n      }).promise();\n      \n      console.log('Successfully configured Cognito trigger');\n      await response.send(event, context, response.SUCCESS, {});\n    } else if (event.RequestType === 'Delete') {\n      console.log('Removing Cognito PostConfirmation trigger...');\n      \n      await cognito.updateUserPool({\n        UserPoolId: UserPoolId,\n        LambdaConfig: {}\n      }).promise();\n      \n      console.log('Successfully removed Cognito trigger');\n      await response.send(event, context, response.SUCCESS, {});\n    }\n  } catch (error) {\n    console.error('Error:', error);\n    await response.send(event, context, response.FAILED, {});\n  }\n};\n"
+        }
+      }
+    },
     "CostGuardUserPoolClient": {
       "Type": "AWS::Cognito::UserPoolClient",
       "Properties": {
@@ -2472,7 +2515,7 @@
     "SignUpLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "SignUpLambdaVersionrA4VNHd9X32PtkIZeKEdFOw8KSe7o86yEwB34N0uA"
+        "Ref": "SignUpLambdaVersionY0h7zoUg306F68usrC7JwPTtRRwJk85R7JuJkEHE"
       },
       "Export": {
         "Name": "sls-CostGuard-dev-SignUpLambdaFunctionQualifiedArn"
@@ -2481,7 +2524,7 @@
     "SignInLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "SignInLambdaVersion8sMvixCWO1lo1Vgwyp8huE5azTpFNIfuSS7iHyDqwkQ"
+        "Ref": "SignInLambdaVersionYragR9v2YN2QbXI0IsvVUyhJB5aOMkBjqppcEHrFssI"
       },
       "Export": {
         "Name": "sls-CostGuard-dev-SignInLambdaFunctionQualifiedArn"
@@ -2490,7 +2533,7 @@
     "RefreshTokenLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "RefreshTokenLambdaVersiongjyvC5EhFICmfr8I9vJlbVCZSeaNI1l5EF8lJzZogE"
+        "Ref": "RefreshTokenLambdaVersiony7sf87BMNIdugIgLVE5YztBicYMM0WpY8uqdxn83TQA"
       },
       "Export": {
         "Name": "sls-CostGuard-dev-RefreshTokenLambdaFunctionQualifiedArn"
@@ -2499,7 +2542,7 @@
     "GetUserProfileLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "GetUserProfileLambdaVersion3ZkmrwPchYbnpkawSrl49byP7rtml5TTnykZ3FIxKyc"
+        "Ref": "GetUserProfileLambdaVersionjDNZeuYntPBvU6DRdtRU1exd7jH3ym8QxNCIvIcaaI"
       },
       "Export": {
         "Name": "sls-CostGuard-dev-GetUserProfileLambdaFunctionQualifiedArn"
@@ -2508,7 +2551,7 @@
     "UpdateUserProfileLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "UpdateUserProfileLambdaVersionqDrOGsSpts83S2ose65ztmtvnXoLM5mxWa8feirA"
+        "Ref": "UpdateUserProfileLambdaVersionyuJ424By8GFE9MBzIvmxFO0m1PWt2Z111wYUGMoZng"
       },
       "Export": {
         "Name": "sls-CostGuard-dev-UpdateUserProfileLambdaFunctionQualifiedArn"
@@ -2517,7 +2560,7 @@
     "SetBudgetLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "SetBudgetLambdaVersionoFC7UJTcEtRCtlM0b2wZlVxavlBNfHJteRIehVNOY"
+        "Ref": "SetBudgetLambdaVersionKZ5ZrRddbWQgTFPwmGqcfRTiT3gg55uPtt3LsRJp0"
       },
       "Export": {
         "Name": "sls-CostGuard-dev-SetBudgetLambdaFunctionQualifiedArn"
@@ -2526,7 +2569,7 @@
     "GetBudgetLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "GetBudgetLambdaVersionQsslNekAxkhGokYdIZjmh0s3x57hAqv7tENMqyNuSlY"
+        "Ref": "GetBudgetLambdaVersiondI72XzZHmPXusREkWzq7Y09kM1RKAxsP0dje63Nx8sY"
       },
       "Export": {
         "Name": "sls-CostGuard-dev-GetBudgetLambdaFunctionQualifiedArn"
@@ -2535,7 +2578,7 @@
     "CostAlertLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "CostAlertLambdaVersionsW1dZfonb4SwddDKBTkwjdGgf22FPeCc6qliGHscYEY"
+        "Ref": "CostAlertLambdaVersion4J8JVdPvrI1MiBVAqld71KSCFtX6WYtBtpZfIr5BO4"
       },
       "Export": {
         "Name": "sls-CostGuard-dev-CostAlertLambdaFunctionQualifiedArn"
@@ -2544,7 +2587,7 @@
     "AlertProcessorLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "AlertProcessorLambdaVersionwbUOzU0i4lyGkV7P1Z8lZKNJsZaSbjuByXSUIuZPGVE"
+        "Ref": "AlertProcessorLambdaVersionn9TTiqovuwqy1zYChI5okaqcfxVGrb28pu4gizgDk"
       },
       "Export": {
         "Name": "sls-CostGuard-dev-AlertProcessorLambdaFunctionQualifiedArn"
@@ -2553,7 +2596,7 @@
     "TriggerAlertsLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "TriggerAlertsLambdaVersionP5obgAeVPFKPW9iJ2dhpcoIMAcj2BfrUn7ZAyc49j4"
+        "Ref": "TriggerAlertsLambdaVersion8ng0YzWdiOY5Wq3GVDOICKtiFocCeYUwWvPDmlJLuOM"
       },
       "Export": {
         "Name": "sls-CostGuard-dev-TriggerAlertsLambdaFunctionQualifiedArn"
@@ -2562,7 +2605,7 @@
     "GetCostDataLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "GetCostDataLambdaVersionf4Zc9lepIOjglMWhEVnHrrcYJFiDZN0mT6syMXvq17A"
+        "Ref": "GetCostDataLambdaVersionNvTBcwTKMN8yTRlaGfcEuDFfgFjcvZUdlusBebVBiBA"
       },
       "Export": {
         "Name": "sls-CostGuard-dev-GetCostDataLambdaFunctionQualifiedArn"
@@ -2571,7 +2614,7 @@
     "SesEmailVerifierLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "SesEmailVerifierLambdaVersionN5ppd4F0cGnPUOFfx03TW2eyT0vJ1gyoIWGMyZY"
+        "Ref": "SesEmailVerifierLambdaVersion6tRULLdSNcGh7E088vI2q93X3nZZ7FAOBOdx27qXHRA"
       },
       "Export": {
         "Name": "sls-CostGuard-dev-SesEmailVerifierLambdaFunctionQualifiedArn"
