@@ -52,26 +52,26 @@ api_call() {
     local data=$3
     local headers=$4
     
-    log_info "Making $method request to: $endpoint"
+    echo "Making $method request to: $endpoint" >&2
     
     if [ -n "$headers" ]; then
         if [ -n "$data" ]; then
-            curl -s -X $method "$BASE_URL$endpoint" \
+            curl --http1.1 -s -X $method "$BASE_URL$endpoint" \
                 -H "Content-Type: application/json" \
                 -H "$headers" \
                 -d "$data"
         else
-            curl -s -X $method "$BASE_URL$endpoint" \
+            curl --http1.1 -s -X $method "$BASE_URL$endpoint" \
                 -H "Content-Type: application/json" \
                 -H "$headers"
         fi
     else
         if [ -n "$data" ]; then
-            curl -s -X $method "$BASE_URL$endpoint" \
+            curl --http1.1 -s -X $method "$BASE_URL$endpoint" \
                 -H "Content-Type: application/json" \
                 -d "$data"
         else
-            curl -s -X $method "$BASE_URL$endpoint" \
+            curl --http1.1 -s -X $method "$BASE_URL$endpoint" \
                 -H "Content-Type: application/json"
         fi
     fi
@@ -181,10 +181,10 @@ test_set_budget() {
     
     local budget_data='{
         "budgetName": "Monthly AWS Budget",
-        "budgetLimit": 150.00,
-        "threshold": 80,
+        "monthlyLimit": 150.00,
+        "alertThreshold": 80,
         "services": ["EC2", "S3", "Lambda"],
-        "timeframe": "monthly"
+        "alertFrequency": "daily"
     }'
     
     local response=$(api_call "POST" "/budget/set" "$budget_data" "Authorization: Bearer $ACCESS_TOKEN")
@@ -277,10 +277,10 @@ test_advanced_budget_scenarios() {
     
     local budget_data_2='{
         "budgetName": "Development Environment",
-        "budgetLimit": 50.00,
-        "threshold": 75,
+        "monthlyLimit": 50.00,
+        "alertThreshold": 75,
         "services": ["Lambda", "API Gateway", "DynamoDB"],
-        "timeframe": "monthly"
+        "alertFrequency": "daily"
     }'
     
     local response2=$(api_call "POST" "/budget/set" "$budget_data_2" "Authorization: Bearer $ACCESS_TOKEN")
@@ -288,10 +288,10 @@ test_advanced_budget_scenarios() {
     
     local budget_data_3='{
         "budgetName": "Storage Budget",
-        "budgetLimit": 25.00,
-        "threshold": 90,
+        "monthlyLimit": 25.00,
+        "alertThreshold": 90,
         "services": ["S3", "EBS"],
-        "timeframe": "monthly"
+        "alertFrequency": "weekly"
     }'
     
     local response3=$(api_call "POST" "/budget/set" "$budget_data_3" "Authorization: Bearer $ACCESS_TOKEN")
@@ -300,8 +300,40 @@ test_advanced_budget_scenarios() {
     log_success "Advanced budget scenarios completed"
 }
 
+test_budget_deletion() {
+    log_step "Step 11: Budget Deletion Tests"
+    
+    # First, get all budgets to find one to delete
+    log_info "Getting current budgets to find one to delete..."
+    local budgets_response=$(api_call "GET" "/budget" "" "Authorization: Bearer $ACCESS_TOKEN")
+    echo "Current Budgets: $budgets_response"
+    
+    # Extract a budget ID from the response (we'll delete the first one)
+    local budget_id=$(echo "$budgets_response" | grep -o '"budgetId":"[^"]*"' | head -1 | cut -d'"' -f4)
+    
+    if [ -n "$budget_id" ]; then
+        log_info "Deleting budget with ID: $budget_id"
+        local delete_response=$(api_call "DELETE" "/budget/$budget_id" "" "Authorization: Bearer $ACCESS_TOKEN")
+        echo "Delete Budget Response: $delete_response"
+        
+        # Verify the budget was deleted by trying to get budgets again
+        log_info "Verifying budget deletion..."
+        local verify_response=$(api_call "GET" "/budget" "" "Authorization: Bearer $ACCESS_TOKEN")
+        echo "Budgets After Deletion: $verify_response"
+        
+        # Test deleting a non-existent budget
+        log_info "Testing deletion of non-existent budget..."
+        local nonexistent_response=$(api_call "DELETE" "/budget/non-existent-budget-id" "" "Authorization: Bearer $ACCESS_TOKEN")
+        echo "Non-existent Budget Delete Response: $nonexistent_response"
+    else
+        log_info "No budgets found to delete"
+    fi
+    
+    log_success "Budget deletion tests completed"
+}
+
 test_error_scenarios() {
-    log_step "Step 11: Error Handling Tests"
+    log_step "Step 12: Error Handling Tests"
     
     log_info "Testing invalid token..."
     local invalid_response=$(api_call "GET" "/auth/profile" "" "Authorization: Bearer invalid_token_123")
@@ -334,7 +366,7 @@ main() {
     fi
     
     local failed_tests=0
-    local total_tests=11
+    local total_tests=12
     
     # Execute all tests
     test_user_signup || ((failed_tests++))
@@ -347,6 +379,7 @@ main() {
     test_trigger_alerts || ((failed_tests++))
     test_refresh_token || ((failed_tests++))
     test_advanced_budget_scenarios || ((failed_tests++))
+    test_budget_deletion || ((failed_tests++))
     test_error_scenarios || ((failed_tests++))
     
     # Final summary

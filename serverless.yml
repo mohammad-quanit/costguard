@@ -139,6 +139,15 @@ functions:
           method: get
           cors: true
 
+  deleteBudget:
+    handler: src/functions/Budget/deleteBudgetHandler.handler
+    description: "Delete a user's budget by ID"
+    events:
+      - http:
+          path: budget/{budgetId}
+          method: delete
+          cors: true
+
   # Cost Alert Functions
   costAlert:
     handler: src/functions/CostAlert/costAlertHandler.handler
@@ -177,16 +186,6 @@ functions:
       ALERT_SNS_TOPIC: !Ref AlertSNSTopic
       FROM_EMAIL: ${env:FROM_EMAIL, ""}
       DEFAULT_ALERT_EMAIL: ${env:DEFAULT_ALERT_EMAIL, "muhammadquanit@gmail.com"}
-
-  # # Legacy alert function (keeping for backward compatibility)
-  # triggerCostAlert:
-  #   handler: src/functions/CostAlert/costAlertHandler.handler
-  #   description: "Manual trigger for cost alerts (legacy - for testing)"
-  #   events:
-  #     - http:
-  #         path: alerts/trigger-legacy
-  #         method: post
-  #         cors: true
 
   getCostData:
     handler: src/functions/CostData/index.GetCostAndUsageHandler
