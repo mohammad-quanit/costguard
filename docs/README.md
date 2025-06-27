@@ -14,7 +14,7 @@ CostGuard is a comprehensive AWS cost monitoring and budget management system bu
 
 ### Base URL
 ```
-https://dl6q0k9s90.execute-api.us-east-1.amazonaws.com/dev
+https://xlr4wiih1g.execute-api.us-east-1.amazonaws.com/local
 ```
 
 ### Authentication

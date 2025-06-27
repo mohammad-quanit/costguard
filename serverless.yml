@@ -206,7 +206,6 @@ functions:
       - cognitoUserPool:
           pool: CostGuardUserPool
           trigger: PostConfirmation
-          existing: true
 
 resources:
   Resources:

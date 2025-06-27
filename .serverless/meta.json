@@ -125,7 +125,7 @@
             ]
           }
         },
-        "stage": "dev",
+        "stage": "local",
         "versionFunctions": true
       },
       "functions": {
@@ -141,7 +141,7 @@
               }
             }
           ],
-          "name": "CostGuard-dev-signUp"
+          "name": "CostGuard-local-signUp"
         },
         "signIn": {
           "handler": "src/functions/Auth/signIn.handler",
@@ -155,7 +155,7 @@
               }
             }
           ],
-          "name": "CostGuard-dev-signIn"
+          "name": "CostGuard-local-signIn"
         },
         "refreshToken": "<REDACTED>",
         "getUserProfile": {
@@ -170,7 +170,7 @@
               }
             }
           ],
-          "name": "CostGuard-dev-getUserProfile"
+          "name": "CostGuard-local-getUserProfile"
         },
         "updateUserProfile": {
           "handler": "src/functions/Auth/updateUserProfile.handler",
@@ -184,7 +184,7 @@
               }
             }
           ],
-          "name": "CostGuard-dev-updateUserProfile"
+          "name": "CostGuard-local-updateUserProfile"
         },
         "setBudget": {
           "handler": "src/functions/Budget/setBudgetHandler.handler",
@@ -198,7 +198,7 @@
               }
             }
           ],
-          "name": "CostGuard-dev-setBudget"
+          "name": "CostGuard-local-setBudget"
         },
         "getBudget": {
           "handler": "src/functions/Budget/getBudgetHandler.handler",
@@ -212,7 +212,7 @@
               }
             }
           ],
-          "name": "CostGuard-dev-getBudget"
+          "name": "CostGuard-local-getBudget"
         },
         "costAlert": {
           "handler": "src/functions/CostAlert/costAlertHandler.handler",
@@ -222,7 +222,7 @@
               "schedule": "rate(1 day)"
             }
           ],
-          "name": "CostGuard-dev-costAlert"
+          "name": "CostGuard-local-costAlert"
         },
         "alertProcessor": {
           "handler": "src/functions/Alerts/alertProcessor.handler",
@@ -249,7 +249,7 @@
             "FROM_EMAIL": "muhammadquanit@gmail.com",
             "DEFAULT_ALERT_EMAIL": "muhammadquanit@gmail.com"
           },
-          "name": "CostGuard-dev-alertProcessor"
+          "name": "CostGuard-local-alertProcessor"
         },
         "triggerAlerts": {
           "handler": "src/functions/Alerts/triggerAlerts.handler",
@@ -275,7 +275,7 @@
             "FROM_EMAIL": "",
             "DEFAULT_ALERT_EMAIL": "muhammadquanit@gmail.com"
           },
-          "name": "CostGuard-dev-triggerAlerts"
+          "name": "CostGuard-local-triggerAlerts"
         },
         "getCostData": {
           "handler": "src/functions/CostData/index.GetCostAndUsageHandler",
@@ -289,7 +289,7 @@
               }
             }
           ],
-          "name": "CostGuard-dev-getCostData"
+          "name": "CostGuard-local-getCostData"
         },
         "sesEmailVerifier": {
           "handler": "src/functions/Auth/sesEmailVerifier.handler",
@@ -299,12 +299,11 @@
             {
               "cognitoUserPool": {
                 "pool": "CostGuardUserPool",
-                "trigger": "PostConfirmation",
-                "existing": true
+                "trigger": "PostConfirmation"
               }
             }
           ],
-          "name": "CostGuard-dev-sesEmailVerifier"
+          "name": "CostGuard-local-sesEmailVerifier"
         }
       },
       "resources": {
@@ -312,14 +311,14 @@
           "AlertSNSTopic": {
             "Type": "AWS::SNS::Topic",
             "Properties": {
-              "TopicName": "CostGuard-budget-alerts-dev",
+              "TopicName": "CostGuard-budget-alerts-local",
               "DisplayName": "CostGuard Budget Alerts"
             }
           },
           "CostGuardUserPool": {
             "Type": "AWS::Cognito::UserPool",
             "Properties": {
-              "UserPoolName": "CostGuard-user-pool-dev",
+              "UserPoolName": "CostGuard-user-pool-local",
               "UsernameAttributes": [
                 "email"
               ],
@@ -357,7 +356,7 @@
           "CostGuardUserPoolClient": {
             "Type": "AWS::Cognito::UserPoolClient",
             "Properties": {
-              "ClientName": "CostGuard-user-pool-client-dev",
+              "ClientName": "CostGuard-user-pool-client-local",
               "UserPoolId": {
                 "Ref": "CostGuardUserPool"
               },
@@ -376,7 +375,7 @@
           "CloudBudgetSettingsTable": {
             "Type": "AWS::DynamoDB::Table",
             "Properties": {
-              "TableName": "CostGuard-cloud-budget-settings-dev",
+              "TableName": "CostGuard-cloud-budget-settings-local",
               "AttributeDefinitions": [
                 {
                   "AttributeName": "userId",
@@ -410,7 +409,7 @@
           "UsersTable": {
             "Type": "AWS::DynamoDB::Table",
             "Properties": {
-              "TableName": "CostGuard-users-dev",
+              "TableName": "CostGuard-users-local",
               "AttributeDefinitions": [
                 {
                   "AttributeName": "userId",
@@ -462,7 +461,7 @@
               "Ref": "CostGuardUserPool"
             },
             "Export": {
-              "Name": "CostGuard-user-pool-id-dev"
+              "Name": "CostGuard-user-pool-id-local"
             }
           },
           "UserPoolClientId": {
@@ -470,7 +469,7 @@
               "Ref": "CostGuardUserPoolClient"
             },
             "Export": {
-              "Name": "CostGuard-user-pool-client-id-dev"
+              "Name": "CostGuard-user-pool-client-id-local"
             }
           },
           "CloudBudgetSettingsTableName": {
@@ -478,7 +477,7 @@
               "Ref": "CloudBudgetSettingsTable"
             },
             "Export": {
-              "Name": "CostGuard-cloud-budget-settings-table-dev"
+              "Name": "CostGuard-cloud-budget-settings-table-local"
             }
           }
         }
@@ -506,7 +505,7 @@
           "!docs/test-alert-system.sh",
           "!docs/test-api.sh"
         ],
-        "artifactsS3KeyDirname": "serverless/CostGuard/dev/code-artifacts"
+        "artifactsS3KeyDirname": "serverless/CostGuard/local/code-artifacts"
       }
     },
     "provider": {
@@ -627,7 +626,7 @@
           ]
         }
       },
-      "stage": "dev",
+      "stage": "local",
       "versionFunctions": true
     },
     "dashboard": {
@@ -642,124 +641,121 @@
       "serviceProvider": null,
       "instanceParameters": null
     },
-    "error": {
-      "message": "Stack [arn:aws:cloudformation:us-east-1:605246879659:stack/CostGuard-dev/651dbf20-4e94-11f0-82e6-12e4ebc73c53] cannot be deleted while in status UPDATE_ROLLBACK_COMPLETE_CLEANUP_IN_PROGRESS",
-      "stack": "ServerlessError2: Stack [arn:aws:cloudformation:us-east-1:605246879659:stack/CostGuard-dev/651dbf20-4e94-11f0-82e6-12e4ebc73c53] cannot be deleted while in status UPDATE_ROLLBACK_COMPLETE_CLEANUP_IN_PROGRESS\n    at file:///Users/mquanit/.serverless/releases/4.17.1/package/dist/sf-core.js:1155:36\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async persistentRequest (file:///Users/mquanit/.serverless/releases/4.17.1/package/dist/sf-core.js:1154:1960)",
-      "code": "AWS_CLOUD_FORMATION_DELETE_STACK_VALIDATION_ERROR"
-    },
-    "serviceRawFile": "# \"org\" ensures this Service is used with the correct Serverless Framework Access Key.\norg: zenchatai\n# \"service\" is the name of this project. This will also be added to your AWS resource names.\nservice: CostGuard\napp: costguard\n\nprovider:\n  name: aws\n  runtime: nodejs22.x\n  region: us-east-1\n  environment:\n    COST_ALERT_TOPIC: ${env:COST_ALERT_TOPIC}\n    COST_ALERT_TABLE: ${env:COST_ALERT_TABLE}\n    DAILY_THRESHOLD_PERCENT: ${env:DAILY_THRESHOLD_PERCENT}\n    MONTHLY_BUDGET: ${env:MONTHLY_BUDGET}\n    AWS_ACCOUNT_ID: ${env:AWS_ACCOUNT_ID, \"\"}\n    USER_POOL_ID: !Ref CostGuardUserPool\n    USER_POOL_CLIENT_ID: !Ref CostGuardUserPoolClient\n    USERS_TABLE: !Ref UsersTable\n    CLOUD_BUDGET_SETTINGS_TABLE: !Ref CloudBudgetSettingsTable\n    JWT_SECRET: ${env:JWT_SECRET, \"your-jwt-secret-key\"}\n  iam:\n    role:\n      statements:\n        - Effect: Allow\n          Action:\n            - ce:GetCostAndUsage\n            - ce:GetDimensionValues\n            - ce:GetUsageReport\n          Resource: \"*\"\n        - Effect: Allow\n          Action:\n            - budgets:ViewBudget\n            - budgets:DescribeBudgets\n            - budgets:DescribeBudget\n          Resource: \"*\"\n        - Effect: Allow\n          Action:\n            - sts:GetCallerIdentity\n          Resource: \"*\"\n        - Effect: Allow\n          Action:\n            - cognito-idp:AdminCreateUser\n            - cognito-idp:AdminSetUserPassword\n            - cognito-idp:AdminInitiateAuth\n            - cognito-idp:AdminGetUser\n            - cognito-idp:AdminUpdateUserAttributes\n            - cognito-idp:AdminDeleteUser\n            - cognito-idp:ListUsers\n            - cognito-idp:UpdateUserPool\n            - cognito-idp:DescribeUserPool\n          Resource: !GetAtt CostGuardUserPool.Arn\n        - Effect: Allow\n          Action:\n            - dynamodb:Query\n            - dynamodb:Scan\n            - dynamodb:GetItem\n            - dynamodb:PutItem\n            - dynamodb:UpdateItem\n            - dynamodb:DeleteItem\n          Resource:\n            - !GetAtt UsersTable.Arn\n            - !Sub \"${UsersTable.Arn}/index/*\"\n            - !GetAtt CloudBudgetSettingsTable.Arn\n            - !Sub \"${CloudBudgetSettingsTable.Arn}/index/*\"\n        - Effect: Allow\n          Action:\n            - sns:Publish\n            - ses:SendEmail\n            - ses:SendRawEmail\n            - ses:VerifyEmailIdentity\n            - ses:ListVerifiedEmailAddresses\n            - ses:GetIdentityVerificationAttributes\n          Resource: \"*\"\n\nfunctions:\n  # Authentication Functions\n  signUp:\n    handler: src/functions/Auth/signUp.handler\n    description: \"User registration with Cognito\"\n    events:\n      - http:\n          path: auth/signup\n          method: post\n          cors: true\n\n  signIn:\n    handler: src/functions/Auth/signIn.handler\n    description: \"User login with Cognito\"\n    events:\n      - http:\n          path: auth/signin\n          method: post\n          cors: true\n\n  refreshToken:\n    handler: src/functions/Auth/refreshToken.handler\n    description: \"Refresh JWT token\"\n    events:\n      - http:\n          path: auth/refresh\n          method: post\n          cors: true\n\n  getUserProfile:\n    handler: src/functions/Auth/getUserProfile.handler\n    description: \"Get user profile information\"\n    events:\n      - http:\n          path: auth/profile\n          method: get\n          cors: true\n\n  updateUserProfile:\n    handler: src/functions/Auth/updateUserProfile.handler\n    description: \"Update user profile information\"\n    events:\n      - http:\n          path: auth/profile\n          method: put\n          cors: true\n\n  # Budget Management Functions\n  setBudget:\n    handler: src/functions/Budget/setBudgetHandler.handler\n    description: \"Set or update user's cloud budget settings\"\n    events:\n      - http:\n          path: budget/set\n          method: post\n          cors: true\n\n  getBudget:\n    handler: src/functions/Budget/getBudgetHandler.handler\n    description: \"Get user's current budget settings\"\n    events:\n      - http:\n          path: budget\n          method: get\n          cors: true\n\n  # Cost Alert Functions\n  costAlert:\n    handler: src/functions/CostAlert/costAlertHandler.handler\n    description: \"Scheduled Lambda to check AWS cost and alert users\"\n    events:\n      - schedule: rate(1 day)\n\n  # New Alert Processing Functions\n  alertProcessor:\n    handler: src/functions/Alerts/alertProcessor.handler\n    description: \"Scheduled alert processor for budget monitoring\"\n    timeout: 300\n    memorySize: 1024\n    events:\n      - schedule:\n          rate: rate(1 hour) # Run every hour\n          enabled: true\n    environment:\n      CLOUD_BUDGET_SETTINGS_TABLE: !Ref CloudBudgetSettingsTable\n      ALERT_SNS_TOPIC: !Ref AlertSNSTopic\n      FROM_EMAIL: ${env:FROM_EMAIL, \"muhammadquanit@gmail.com\"}\n      DEFAULT_ALERT_EMAIL: ${env:DEFAULT_ALERT_EMAIL, \"muhammadquanit@gmail.com\"}\n\n  triggerAlerts:\n    handler: src/functions/Alerts/triggerAlerts.handler\n    description: \"Manual alert trigger API endpoint\"\n    timeout: 29\n    memorySize: 1024\n    events:\n      - http:\n          path: alerts/trigger\n          method: post\n          cors: true\n    environment:\n      CLOUD_BUDGET_SETTINGS_TABLE: !Ref CloudBudgetSettingsTable\n      ALERT_SNS_TOPIC: !Ref AlertSNSTopic\n      FROM_EMAIL: ${env:FROM_EMAIL, \"\"}\n      DEFAULT_ALERT_EMAIL: ${env:DEFAULT_ALERT_EMAIL, \"muhammadquanit@gmail.com\"}\n\n  # # Legacy alert function (keeping for backward compatibility)\n  # triggerCostAlert:\n  #   handler: src/functions/CostAlert/costAlertHandler.handler\n  #   description: \"Manual trigger for cost alerts (legacy - for testing)\"\n  #   events:\n  #     - http:\n  #         path: alerts/trigger-legacy\n  #         method: post\n  #         cors: true\n\n  getCostData:\n    handler: src/functions/CostData/index.GetCostAndUsageHandler\n    description: \"API to fetch cost data from DynamoDB (protected)\"\n    events:\n      - http:\n          path: cost-usage\n          method: get\n          cors: true\n\n  # SES Email Verifier - Cognito Post-Confirmation Trigger\n  sesEmailVerifier:\n    handler: src/functions/Auth/sesEmailVerifier.handler\n    description: \"Automatically verify user emails in SES after Cognito confirmation\"\n    timeout: 30\n    events:\n      - cognitoUserPool:\n          pool: CostGuardUserPool\n          trigger: PostConfirmation\n          existing: true\n\nresources:\n  Resources:\n    # SNS Topic for Budget Alerts\n    AlertSNSTopic:\n      Type: AWS::SNS::Topic\n      Properties:\n        TopicName: ${self:service}-budget-alerts-${sls:stage}\n        DisplayName: CostGuard Budget Alerts\n\n    # Cognito User Pool\n    CostGuardUserPool:\n      Type: AWS::Cognito::UserPool\n      Properties:\n        UserPoolName: ${self:service}-user-pool-${sls:stage}\n        UsernameAttributes:\n          - email\n        AutoVerifiedAttributes:\n          - email\n        Policies:\n          PasswordPolicy:\n            MinimumLength: 8\n            RequireUppercase: true\n            RequireLowercase: true\n            RequireNumbers: true\n            RequireSymbols: true\n        Schema:\n          - Name: email\n            AttributeDataType: String\n            Required: true\n            Mutable: true\n          - Name: given_name\n            AttributeDataType: String\n            Required: true\n            Mutable: true\n          - Name: family_name\n            AttributeDataType: String\n            Required: true\n            Mutable: true\n        EmailConfiguration:\n          EmailSendingAccount: COGNITO_DEFAULT\n\n    # Cognito User Pool Client\n    CostGuardUserPoolClient:\n      Type: AWS::Cognito::UserPoolClient\n      Properties:\n        ClientName: ${self:service}-user-pool-client-${sls:stage}\n        UserPoolId: !Ref CostGuardUserPool\n        GenerateSecret: false\n        ExplicitAuthFlows:\n          - ALLOW_ADMIN_USER_PASSWORD_AUTH\n          - ALLOW_USER_PASSWORD_AUTH\n          - ALLOW_REFRESH_TOKEN_AUTH\n        AccessTokenValidity: 24\n        IdTokenValidity: 24\n        RefreshTokenValidity: 30\n        TokenValidityUnits:\n          AccessToken: hours\n          IdToken: hours\n          RefreshToken: days\n\n    # DynamoDB CloudBudgetSettings Table\n    CloudBudgetSettingsTable:\n      Type: AWS::DynamoDB::Table\n      Properties:\n        TableName: ${self:service}-cloud-budget-settings-${sls:stage}\n        AttributeDefinitions:\n          - AttributeName: userId\n            AttributeType: S\n          - AttributeName: budgetId\n            AttributeType: S\n        KeySchema:\n          - AttributeName: userId\n            KeyType: HASH\n          - AttributeName: budgetId\n            KeyType: RANGE\n        BillingMode: PROVISIONED\n        ProvisionedThroughput:\n          ReadCapacityUnits: 5\n          WriteCapacityUnits: 5\n        StreamSpecification:\n          StreamViewType: NEW_AND_OLD_IMAGES\n\n    # DynamoDB Users Table\n    UsersTable:\n      Type: AWS::DynamoDB::Table\n      Properties:\n        TableName: ${self:service}-users-${sls:stage}\n        AttributeDefinitions:\n          - AttributeName: userId\n            AttributeType: S\n          - AttributeName: email\n            AttributeType: S\n        KeySchema:\n          - AttributeName: userId\n            KeyType: HASH\n        GlobalSecondaryIndexes:\n          - IndexName: EmailIndex\n            KeySchema:\n              - AttributeName: email\n                KeyType: HASH\n            Projection:\n              ProjectionType: ALL\n            ProvisionedThroughput:\n              ReadCapacityUnits: 5\n              WriteCapacityUnits: 5\n        BillingMode: PROVISIONED\n        ProvisionedThroughput:\n          ReadCapacityUnits: 5\n          WriteCapacityUnits: 5\n        StreamSpecification:\n          StreamViewType: NEW_AND_OLD_IMAGES\n\n  Outputs:\n    UserPoolId:\n      Value: !Ref CostGuardUserPool\n      Export:\n        Name: ${self:service}-user-pool-id-${sls:stage}\n\n    UserPoolClientId:\n      Value: !Ref CostGuardUserPoolClient\n      Export:\n        Name: ${self:service}-user-pool-client-id-${sls:stage}\n\n    CloudBudgetSettingsTableName:\n      Value: !Ref CloudBudgetSettingsTable\n      Export:\n        Name: ${self:service}-cloud-budget-settings-table-${sls:stage}\n\nplugins:\n  - serverless-plugin-common-excludes\n  - serverless-plugin-include-dependencies\n\npackage:\n  patterns:\n    - \"!.git/**\"\n    - \"!.vscode/**\"\n    - \"!tests/**\"\n    - \"!docs/**\"\n    - \"!*.md\"\n    - \"!.env\"\n    - \"!.gitignore\"\n    - \"!test-auth.js\"\n    - \"!node_modules/**\"\n    - \"!.serverless/**\"\n    - \"!coverage/**\"\n    - \"!jest.config.js\"\n    - \"!eslint.config.js\"\n    - \"!docs/test-alert-system-with-threshold.sh\"\n    - \"!docs/test-alert-system.sh\"\n    - \"!docs/test-api.sh\"\n",
+    "serviceRawFile": "# \"org\" ensures this Service is used with the correct Serverless Framework Access Key.\norg: zenchatai\n# \"service\" is the name of this project. This will also be added to your AWS resource names.\nservice: CostGuard\napp: costguard\n\nprovider:\n  name: aws\n  runtime: nodejs22.x\n  region: us-east-1\n  environment:\n    COST_ALERT_TOPIC: ${env:COST_ALERT_TOPIC}\n    COST_ALERT_TABLE: ${env:COST_ALERT_TABLE}\n    DAILY_THRESHOLD_PERCENT: ${env:DAILY_THRESHOLD_PERCENT}\n    MONTHLY_BUDGET: ${env:MONTHLY_BUDGET}\n    AWS_ACCOUNT_ID: ${env:AWS_ACCOUNT_ID, \"\"}\n    USER_POOL_ID: !Ref CostGuardUserPool\n    USER_POOL_CLIENT_ID: !Ref CostGuardUserPoolClient\n    USERS_TABLE: !Ref UsersTable\n    CLOUD_BUDGET_SETTINGS_TABLE: !Ref CloudBudgetSettingsTable\n    JWT_SECRET: ${env:JWT_SECRET, \"your-jwt-secret-key\"}\n  iam:\n    role:\n      statements:\n        - Effect: Allow\n          Action:\n            - ce:GetCostAndUsage\n            - ce:GetDimensionValues\n            - ce:GetUsageReport\n          Resource: \"*\"\n        - Effect: Allow\n          Action:\n            - budgets:ViewBudget\n            - budgets:DescribeBudgets\n            - budgets:DescribeBudget\n          Resource: \"*\"\n        - Effect: Allow\n          Action:\n            - sts:GetCallerIdentity\n          Resource: \"*\"\n        - Effect: Allow\n          Action:\n            - cognito-idp:AdminCreateUser\n            - cognito-idp:AdminSetUserPassword\n            - cognito-idp:AdminInitiateAuth\n            - cognito-idp:AdminGetUser\n            - cognito-idp:AdminUpdateUserAttributes\n            - cognito-idp:AdminDeleteUser\n            - cognito-idp:ListUsers\n            - cognito-idp:UpdateUserPool\n            - cognito-idp:DescribeUserPool\n          Resource: !GetAtt CostGuardUserPool.Arn\n        - Effect: Allow\n          Action:\n            - dynamodb:Query\n            - dynamodb:Scan\n            - dynamodb:GetItem\n            - dynamodb:PutItem\n            - dynamodb:UpdateItem\n            - dynamodb:DeleteItem\n          Resource:\n            - !GetAtt UsersTable.Arn\n            - !Sub \"${UsersTable.Arn}/index/*\"\n            - !GetAtt CloudBudgetSettingsTable.Arn\n            - !Sub \"${CloudBudgetSettingsTable.Arn}/index/*\"\n        - Effect: Allow\n          Action:\n            - sns:Publish\n            - ses:SendEmail\n            - ses:SendRawEmail\n            - ses:VerifyEmailIdentity\n            - ses:ListVerifiedEmailAddresses\n            - ses:GetIdentityVerificationAttributes\n          Resource: \"*\"\n\nfunctions:\n  # Authentication Functions\n  signUp:\n    handler: src/functions/Auth/signUp.handler\n    description: \"User registration with Cognito\"\n    events:\n      - http:\n          path: auth/signup\n          method: post\n          cors: true\n\n  signIn:\n    handler: src/functions/Auth/signIn.handler\n    description: \"User login with Cognito\"\n    events:\n      - http:\n          path: auth/signin\n          method: post\n          cors: true\n\n  refreshToken:\n    handler: src/functions/Auth/refreshToken.handler\n    description: \"Refresh JWT token\"\n    events:\n      - http:\n          path: auth/refresh\n          method: post\n          cors: true\n\n  getUserProfile:\n    handler: src/functions/Auth/getUserProfile.handler\n    description: \"Get user profile information\"\n    events:\n      - http:\n          path: auth/profile\n          method: get\n          cors: true\n\n  updateUserProfile:\n    handler: src/functions/Auth/updateUserProfile.handler\n    description: \"Update user profile information\"\n    events:\n      - http:\n          path: auth/profile\n          method: put\n          cors: true\n\n  # Budget Management Functions\n  setBudget:\n    handler: src/functions/Budget/setBudgetHandler.handler\n    description: \"Set or update user's cloud budget settings\"\n    events:\n      - http:\n          path: budget/set\n          method: post\n          cors: true\n\n  getBudget:\n    handler: src/functions/Budget/getBudgetHandler.handler\n    description: \"Get user's current budget settings\"\n    events:\n      - http:\n          path: budget\n          method: get\n          cors: true\n\n  # Cost Alert Functions\n  costAlert:\n    handler: src/functions/CostAlert/costAlertHandler.handler\n    description: \"Scheduled Lambda to check AWS cost and alert users\"\n    events:\n      - schedule: rate(1 day)\n\n  # New Alert Processing Functions\n  alertProcessor:\n    handler: src/functions/Alerts/alertProcessor.handler\n    description: \"Scheduled alert processor for budget monitoring\"\n    timeout: 300\n    memorySize: 1024\n    events:\n      - schedule:\n          rate: rate(1 hour) # Run every hour\n          enabled: true\n    environment:\n      CLOUD_BUDGET_SETTINGS_TABLE: !Ref CloudBudgetSettingsTable\n      ALERT_SNS_TOPIC: !Ref AlertSNSTopic\n      FROM_EMAIL: ${env:FROM_EMAIL, \"muhammadquanit@gmail.com\"}\n      DEFAULT_ALERT_EMAIL: ${env:DEFAULT_ALERT_EMAIL, \"muhammadquanit@gmail.com\"}\n\n  triggerAlerts:\n    handler: src/functions/Alerts/triggerAlerts.handler\n    description: \"Manual alert trigger API endpoint\"\n    timeout: 29\n    memorySize: 1024\n    events:\n      - http:\n          path: alerts/trigger\n          method: post\n          cors: true\n    environment:\n      CLOUD_BUDGET_SETTINGS_TABLE: !Ref CloudBudgetSettingsTable\n      ALERT_SNS_TOPIC: !Ref AlertSNSTopic\n      FROM_EMAIL: ${env:FROM_EMAIL, \"\"}\n      DEFAULT_ALERT_EMAIL: ${env:DEFAULT_ALERT_EMAIL, \"muhammadquanit@gmail.com\"}\n\n  # # Legacy alert function (keeping for backward compatibility)\n  # triggerCostAlert:\n  #   handler: src/functions/CostAlert/costAlertHandler.handler\n  #   description: \"Manual trigger for cost alerts (legacy - for testing)\"\n  #   events:\n  #     - http:\n  #         path: alerts/trigger-legacy\n  #         method: post\n  #         cors: true\n\n  getCostData:\n    handler: src/functions/CostData/index.GetCostAndUsageHandler\n    description: \"API to fetch cost data from DynamoDB (protected)\"\n    events:\n      - http:\n          path: cost-usage\n          method: get\n          cors: true\n\n  # SES Email Verifier - Cognito Post-Confirmation Trigger\n  sesEmailVerifier:\n    handler: src/functions/Auth/sesEmailVerifier.handler\n    description: \"Automatically verify user emails in SES after Cognito confirmation\"\n    timeout: 30\n    events:\n      - cognitoUserPool:\n          pool: CostGuardUserPool\n          trigger: PostConfirmation\n\nresources:\n  Resources:\n    # SNS Topic for Budget Alerts\n    AlertSNSTopic:\n      Type: AWS::SNS::Topic\n      Properties:\n        TopicName: ${self:service}-budget-alerts-${sls:stage}\n        DisplayName: CostGuard Budget Alerts\n\n    # Cognito User Pool\n    CostGuardUserPool:\n      Type: AWS::Cognito::UserPool\n      Properties:\n        UserPoolName: ${self:service}-user-pool-${sls:stage}\n        UsernameAttributes:\n          - email\n        AutoVerifiedAttributes:\n          - email\n        Policies:\n          PasswordPolicy:\n            MinimumLength: 8\n            RequireUppercase: true\n            RequireLowercase: true\n            RequireNumbers: true\n            RequireSymbols: true\n        Schema:\n          - Name: email\n            AttributeDataType: String\n            Required: true\n            Mutable: true\n          - Name: given_name\n            AttributeDataType: String\n            Required: true\n            Mutable: true\n          - Name: family_name\n            AttributeDataType: String\n            Required: true\n            Mutable: true\n        EmailConfiguration:\n          EmailSendingAccount: COGNITO_DEFAULT\n\n    # Cognito User Pool Client\n    CostGuardUserPoolClient:\n      Type: AWS::Cognito::UserPoolClient\n      Properties:\n        ClientName: ${self:service}-user-pool-client-${sls:stage}\n        UserPoolId: !Ref CostGuardUserPool\n        GenerateSecret: false\n        ExplicitAuthFlows:\n          - ALLOW_ADMIN_USER_PASSWORD_AUTH\n          - ALLOW_USER_PASSWORD_AUTH\n          - ALLOW_REFRESH_TOKEN_AUTH\n        AccessTokenValidity: 24\n        IdTokenValidity: 24\n        RefreshTokenValidity: 30\n        TokenValidityUnits:\n          AccessToken: hours\n          IdToken: hours\n          RefreshToken: days\n\n    # DynamoDB CloudBudgetSettings Table\n    CloudBudgetSettingsTable:\n      Type: AWS::DynamoDB::Table\n      Properties:\n        TableName: ${self:service}-cloud-budget-settings-${sls:stage}\n        AttributeDefinitions:\n          - AttributeName: userId\n            AttributeType: S\n          - AttributeName: budgetId\n            AttributeType: S\n        KeySchema:\n          - AttributeName: userId\n            KeyType: HASH\n          - AttributeName: budgetId\n            KeyType: RANGE\n        BillingMode: PROVISIONED\n        ProvisionedThroughput:\n          ReadCapacityUnits: 5\n          WriteCapacityUnits: 5\n        StreamSpecification:\n          StreamViewType: NEW_AND_OLD_IMAGES\n\n    # DynamoDB Users Table\n    UsersTable:\n      Type: AWS::DynamoDB::Table\n      Properties:\n        TableName: ${self:service}-users-${sls:stage}\n        AttributeDefinitions:\n          - AttributeName: userId\n            AttributeType: S\n          - AttributeName: email\n            AttributeType: S\n        KeySchema:\n          - AttributeName: userId\n            KeyType: HASH\n        GlobalSecondaryIndexes:\n          - IndexName: EmailIndex\n            KeySchema:\n              - AttributeName: email\n                KeyType: HASH\n            Projection:\n              ProjectionType: ALL\n            ProvisionedThroughput:\n              ReadCapacityUnits: 5\n              WriteCapacityUnits: 5\n        BillingMode: PROVISIONED\n        ProvisionedThroughput:\n          ReadCapacityUnits: 5\n          WriteCapacityUnits: 5\n        StreamSpecification:\n          StreamViewType: NEW_AND_OLD_IMAGES\n\n  Outputs:\n    UserPoolId:\n      Value: !Ref CostGuardUserPool\n      Export:\n        Name: ${self:service}-user-pool-id-${sls:stage}\n\n    UserPoolClientId:\n      Value: !Ref CostGuardUserPoolClient\n      Export:\n        Name: ${self:service}-user-pool-client-id-${sls:stage}\n\n    CloudBudgetSettingsTableName:\n      Value: !Ref CloudBudgetSettingsTable\n      Export:\n        Name: ${self:service}-cloud-budget-settings-table-${sls:stage}\n\nplugins:\n  - serverless-plugin-common-excludes\n  - serverless-plugin-include-dependencies\n\npackage:\n  patterns:\n    - \"!.git/**\"\n    - \"!.vscode/**\"\n    - \"!tests/**\"\n    - \"!docs/**\"\n    - \"!*.md\"\n    - \"!.env\"\n    - \"!.gitignore\"\n    - \"!test-auth.js\"\n    - \"!node_modules/**\"\n    - \"!.serverless/**\"\n    - \"!coverage/**\"\n    - \"!jest.config.js\"\n    - \"!eslint.config.js\"\n    - \"!docs/test-alert-system-with-threshold.sh\"\n    - \"!docs/test-alert-system.sh\"\n    - \"!docs/test-api.sh\"\n",
     "command": [
-      "remove"
+      "info"
     ],
-    "options": {},
+    "options": {
+      "stage": "local"
+    },
     "orgId": "cchDPZ5W84FYXGBxXD",
     "orgName": "zenchatai",
     "userId": "PySz6SQPSdywYlsBlS",
     "userName": "muhammadquanit",
     "serviceProviderAwsAccountId": "605246879659",
-    "serviceProviderAwsCfStackName": "CostGuard-dev",
-    "serviceProviderAwsCfStackId": "arn:aws:cloudformation:us-east-1:605246879659:stack/CostGuard-dev/651dbf20-4e94-11f0-82e6-12e4ebc73c53",
-    "serviceProviderAwsCfStackCreated": "2025-06-21T11:39:30.840Z",
-    "serviceProviderAwsCfStackUpdated": "2025-06-27T18:51:59.969Z",
-    "serviceProviderAwsCfStackStatus": "UPDATE_ROLLBACK_COMPLETE_CLEANUP_IN_PROGRESS",
+    "serviceProviderAwsCfStackName": "CostGuard-local",
+    "serviceProviderAwsCfStackId": "arn:aws:cloudformation:us-east-1:605246879659:stack/CostGuard-local/e6694f70-5391-11f0-a17f-12acc2e88c23",
+    "serviceProviderAwsCfStackCreated": "2025-06-27T20:04:15.086Z",
+    "serviceProviderAwsCfStackUpdated": null,
+    "serviceProviderAwsCfStackStatus": "CREATE_COMPLETE",
     "serviceProviderAwsCfStackOutputs": [
       {
         "OutputKey": "SignInLambdaFunctionQualifiedArn",
-        "OutputValue": "arn:aws:lambda:us-east-1:605246879659:function:CostGuard-dev-signIn:26",
+        "OutputValue": "arn:aws:lambda:us-east-1:605246879659:function:CostGuard-local-signIn:3",
         "Description": "Current Lambda function version",
-        "ExportName": "sls-CostGuard-dev-SignInLambdaFunctionQualifiedArn"
+        "ExportName": "sls-CostGuard-local-SignInLambdaFunctionQualifiedArn"
       },
       {
         "OutputKey": "GetCostDataLambdaFunctionQualifiedArn",
-        "OutputValue": "arn:aws:lambda:us-east-1:605246879659:function:CostGuard-dev-getCostData:40",
+        "OutputValue": "arn:aws:lambda:us-east-1:605246879659:function:CostGuard-local-getCostData:8",
         "Description": "Current Lambda function version",
-        "ExportName": "sls-CostGuard-dev-GetCostDataLambdaFunctionQualifiedArn"
+        "ExportName": "sls-CostGuard-local-GetCostDataLambdaFunctionQualifiedArn"
       },
       {
         "OutputKey": "UpdateUserProfileLambdaFunctionQualifiedArn",
-        "OutputValue": "arn:aws:lambda:us-east-1:605246879659:function:CostGuard-dev-updateUserProfile:26",
+        "OutputValue": "arn:aws:lambda:us-east-1:605246879659:function:CostGuard-local-updateUserProfile:3",
         "Description": "Current Lambda function version",
-        "ExportName": "sls-CostGuard-dev-UpdateUserProfileLambdaFunctionQualifiedArn"
+        "ExportName": "sls-CostGuard-local-UpdateUserProfileLambdaFunctionQualifiedArn"
       },
       {
         "OutputKey": "AlertProcessorLambdaFunctionQualifiedArn",
-        "OutputValue": "arn:aws:lambda:us-east-1:605246879659:function:CostGuard-dev-alertProcessor:7",
+        "OutputValue": "arn:aws:lambda:us-east-1:605246879659:function:CostGuard-local-alertProcessor:2",
         "Description": "Current Lambda function version",
-        "ExportName": "sls-CostGuard-dev-AlertProcessorLambdaFunctionQualifiedArn"
+        "ExportName": "sls-CostGuard-local-AlertProcessorLambdaFunctionQualifiedArn"
       },
       {
         "OutputKey": "SignUpLambdaFunctionQualifiedArn",
-        "OutputValue": "arn:aws:lambda:us-east-1:605246879659:function:CostGuard-dev-signUp:26",
+        "OutputValue": "arn:aws:lambda:us-east-1:605246879659:function:CostGuard-local-signUp:3",
         "Description": "Current Lambda function version",
-        "ExportName": "sls-CostGuard-dev-SignUpLambdaFunctionQualifiedArn"
+        "ExportName": "sls-CostGuard-local-SignUpLambdaFunctionQualifiedArn"
       },
       {
         "OutputKey": "CloudBudgetSettingsTableName",
-        "OutputValue": "CostGuard-cloud-budget-settings-dev",
-        "ExportName": "CostGuard-cloud-budget-settings-table-dev"
+        "OutputValue": "CostGuard-cloud-budget-settings-local",
+        "ExportName": "CostGuard-cloud-budget-settings-table-local"
       },
       {
         "OutputKey": "ServerlessDeploymentBucketName",
         "OutputValue": "serverless-framework-deployments-us-east-1-de0c9720-9574",
-        "ExportName": "sls-CostGuard-dev-ServerlessDeploymentBucketName"
+        "ExportName": "sls-CostGuard-local-ServerlessDeploymentBucketName"
       },
       {
         "OutputKey": "TriggerAlertsLambdaFunctionQualifiedArn",
-        "OutputValue": "arn:aws:lambda:us-east-1:605246879659:function:CostGuard-dev-triggerAlerts:7",
+        "OutputValue": "arn:aws:lambda:us-east-1:605246879659:function:CostGuard-local-triggerAlerts:2",
         "Description": "Current Lambda function version",
-        "ExportName": "sls-CostGuard-dev-TriggerAlertsLambdaFunctionQualifiedArn"
+        "ExportName": "sls-CostGuard-local-TriggerAlertsLambdaFunctionQualifiedArn"
       },
       {
         "OutputKey": "SetBudgetLambdaFunctionQualifiedArn",
-        "OutputValue": "arn:aws:lambda:us-east-1:605246879659:function:CostGuard-dev-setBudget:11",
+        "OutputValue": "arn:aws:lambda:us-east-1:605246879659:function:CostGuard-local-setBudget:2",
         "Description": "Current Lambda function version",
-        "ExportName": "sls-CostGuard-dev-SetBudgetLambdaFunctionQualifiedArn"
+        "ExportName": "sls-CostGuard-local-SetBudgetLambdaFunctionQualifiedArn"
       },
       {
         "OutputKey": "UserPoolClientId",
-        "OutputValue": "38t6dn69m14plcipikds7qkstg",
-        "ExportName": "CostGuard-user-pool-client-id-dev"
+        "OutputValue": "46fm1el4jbsqak8h41p0eu37h5",
+        "ExportName": "CostGuard-user-pool-client-id-local"
       },
       {
         "OutputKey": "SesEmailVerifierLambdaFunctionQualifiedArn",
-        "OutputValue": "arn:aws:lambda:us-east-1:605246879659:function:CostGuard-dev-sesEmailVerifier:3",
+        "OutputValue": "arn:aws:lambda:us-east-1:605246879659:function:CostGuard-local-sesEmailVerifier:2",
         "Description": "Current Lambda function version",
-        "ExportName": "sls-CostGuard-dev-SesEmailVerifierLambdaFunctionQualifiedArn"
+        "ExportName": "sls-CostGuard-local-SesEmailVerifierLambdaFunctionQualifiedArn"
       },
       {
         "OutputKey": "UserPoolId",
-        "OutputValue": "us-east-1_uEYtQOD55",
-        "ExportName": "CostGuard-user-pool-id-dev"
+        "OutputValue": "us-east-1_d53NaJRmd",
+        "ExportName": "CostGuard-user-pool-id-local"
       },
       {
         "OutputKey": "GetBudgetLambdaFunctionQualifiedArn",
-        "OutputValue": "arn:aws:lambda:us-east-1:605246879659:function:CostGuard-dev-getBudget:11",
+        "OutputValue": "arn:aws:lambda:us-east-1:605246879659:function:CostGuard-local-getBudget:2",
         "Description": "Current Lambda function version",
-        "ExportName": "sls-CostGuard-dev-GetBudgetLambdaFunctionQualifiedArn"
+        "ExportName": "sls-CostGuard-local-GetBudgetLambdaFunctionQualifiedArn"
       },
       {
         "OutputKey": "GetUserProfileLambdaFunctionQualifiedArn",
-        "OutputValue": "arn:aws:lambda:us-east-1:605246879659:function:CostGuard-dev-getUserProfile:26",
+        "OutputValue": "arn:aws:lambda:us-east-1:605246879659:function:CostGuard-local-getUserProfile:3",
         "Description": "Current Lambda function version",
-        "ExportName": "sls-CostGuard-dev-GetUserProfileLambdaFunctionQualifiedArn"
+        "ExportName": "sls-CostGuard-local-GetUserProfileLambdaFunctionQualifiedArn"
       },
       {
         "OutputKey": "CostAlertLambdaFunctionQualifiedArn",
-        "OutputValue": "arn:aws:lambda:us-east-1:605246879659:function:CostGuard-dev-costAlert:40",
+        "OutputValue": "arn:aws:lambda:us-east-1:605246879659:function:CostGuard-local-costAlert:8",
         "Description": "Current Lambda function version",
-        "ExportName": "sls-CostGuard-dev-CostAlertLambdaFunctionQualifiedArn"
+        "ExportName": "sls-CostGuard-local-CostAlertLambdaFunctionQualifiedArn"
       },
       {
         "OutputKey": "RefreshTokenLambdaFunctionQualifiedArn",
-        "OutputValue": "arn:aws:lambda:us-east-1:605246879659:function:CostGuard-dev-refreshToken:26",
+        "OutputValue": "arn:aws:lambda:us-east-1:605246879659:function:CostGuard-local-refreshToken:3",
         "Description": "Current Lambda function version",
-        "ExportName": "sls-CostGuard-dev-RefreshTokenLambdaFunctionQualifiedArn"
+        "ExportName": "sls-CostGuard-local-RefreshTokenLambdaFunctionQualifiedArn"
       },
       {
         "OutputKey": "ServiceEndpoint",
-        "OutputValue": "https://dl6q0k9s90.execute-api.us-east-1.amazonaws.com/dev",
+        "OutputValue": "https://xlr4wiih1g.execute-api.us-east-1.amazonaws.com/local",
         "Description": "URL of the service endpoint",
-        "ExportName": "sls-CostGuard-dev-ServiceEndpoint"
+        "ExportName": "sls-CostGuard-local-ServiceEndpoint"
       }
     ]
   }
