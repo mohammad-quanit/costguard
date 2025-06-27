@@ -79,7 +79,7 @@ exports.handler = async(event) => {
         try {
           // Add user email to alert for notification purposes
           alert.userEmail = user.email;
-          
+
           const result = await notificationService.sendAlert(alert);
           notificationResults.push({
             budgetId: alert.budgetId,

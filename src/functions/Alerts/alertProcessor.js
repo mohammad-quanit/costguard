@@ -39,7 +39,7 @@ exports.handler = async(event) => {
             alert.userEmail = user.email;
           }
         }
-        
+
         await notificationService.sendAlert(alert);
         notificationResults.push({
           budgetId: alert.budgetId,

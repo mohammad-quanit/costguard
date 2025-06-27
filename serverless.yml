@@ -66,6 +66,9 @@ provider:
             - sns:Publish
             - ses:SendEmail
             - ses:SendRawEmail
+            - ses:VerifyEmailIdentity
+            - ses:ListVerifiedEmailAddresses
+            - ses:GetIdentityVerificationAttributes
           Resource: "*"
 
 functions:
@@ -160,7 +163,7 @@ functions:
   triggerAlerts:
     handler: src/functions/Alerts/triggerAlerts.handler
     description: "Manual alert trigger API endpoint"
-    timeout: 300
+    timeout: 29
     memorySize: 1024
     events:
       - http:
@@ -173,15 +176,15 @@ functions:
       FROM_EMAIL: ${env:FROM_EMAIL, ""}
       DEFAULT_ALERT_EMAIL: ${env:DEFAULT_ALERT_EMAIL, "muhammadquanit@gmail.com"}
 
-  # Legacy alert function (keeping for backward compatibility)
-  triggerCostAlert:
-    handler: src/functions/CostAlert/costAlertHandler.handler
-    description: "Manual trigger for cost alerts (legacy - for testing)"
-    events:
-      - http:
-          path: alerts/trigger-legacy
-          method: post
-          cors: true
+  # # Legacy alert function (keeping for backward compatibility)
+  # triggerCostAlert:
+  #   handler: src/functions/CostAlert/costAlertHandler.handler
+  #   description: "Manual trigger for cost alerts (legacy - for testing)"
+  #   events:
+  #     - http:
+  #         path: alerts/trigger-legacy
+  #         method: post
+  #         cors: true
 
   getCostData:
     handler: src/functions/CostData/index.GetCostAndUsageHandler
@@ -191,6 +194,12 @@ functions:
           path: cost-usage
           method: get
           cors: true
+
+  # SES Email Verifier - Cognito Post-Confirmation Trigger
+  sesEmailVerifier:
+    handler: src/functions/Auth/sesEmailVerifier.handler
+    description: "Automatically verify user emails in SES after Cognito confirmation"
+    timeout: 30
 
 resources:
   Resources:
@@ -232,6 +241,17 @@ resources:
             Mutable: true
         EmailConfiguration:
           EmailSendingAccount: COGNITO_DEFAULT
+
+    # Lambda Permission for Cognito to invoke SES Email Verifier
+    SesEmailVerifierCognitoPermission:
+      Type: AWS::Lambda::Permission
+      Properties:
+        FunctionName: !Ref SesEmailVerifierLambdaFunction
+        Action: lambda:InvokeFunction
+        Principal: cognito-idp.amazonaws.com
+        SourceArn: !Sub 
+          - arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${UserPoolId}
+          - UserPoolId: !Ref CostGuardUserPool
 
     # Cognito User Pool Client
     CostGuardUserPoolClient:
@@ -321,11 +341,10 @@ resources:
         Name: ${self:service}-cloud-budget-settings-table-${sls:stage}
 
 plugins:
-  - serverless-plugin-common-excludes # this should go before serverless-plugin-include-dependencies
+  - serverless-plugin-common-excludes
   - serverless-plugin-include-dependencies
 
 package:
-  individually: true
   patterns:
     - "!.git/**"
     - "!.vscode/**"
@@ -340,11 +359,6 @@ package:
     - "!coverage/**"
     - "!jest.config.js"
     - "!eslint.config.js"
-    # - "node_modules/@aws-sdk/client-budgets/**"
-    # - "node_modules/@aws-sdk/client-cost-explorer/**"
-    # - "node_modules/@aws-sdk/client-sts/**"
-    # - "node_modules/@aws-sdk/client-cognito-identity-provider/**"
-    # - "node_modules/@aws-sdk/client-dynamodb/**"
-    # - "node_modules/@aws-sdk/lib-dynamodb/**"
-    # - "node_modules/@aws-sdk/client-sns/**"
-    # - "node_modules/@smithy/**"
+    - "!docs/test-alert-system-with-threshold.sh"
+    - "!docs/test-alert-system.sh"
+    - "!docs/test-api.sh"
