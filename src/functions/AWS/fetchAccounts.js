@@ -44,8 +44,8 @@ exports.handler = async(event) => {
         isActive: account.isActive,
         lastValidated: account.lastValidated,
         createdAt: account.createdAt,
-        hasCredentials: account.hasCredentials
-      }))
+        hasCredentials: account.hasCredentials,
+      })),
     };
 
     return createResponse(200, response);

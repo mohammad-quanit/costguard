@@ -4,7 +4,7 @@ User profile management endpoints for retrieving and updating user information.
 
 ## Base URL
 ```
-https://uvg5ue10ai.execute-api.us-east-1.amazonaws.com/dev
+https://6glk0hluf8.execute-api.us-east-1.amazonaws.com/dev
 ```
 
 ---
@@ -17,7 +17,7 @@ Retrieve the authenticated user's profile information.
 
 **Request:**
 ```bash
-curl -X GET https://uvg5ue10ai.execute-api.us-east-1.amazonaws.com/dev/auth/profile \
+curl -X GET https://6glk0hluf8.execute-api.us-east-1.amazonaws.com/dev/auth/profile \
   -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 ```
 
@@ -85,7 +85,7 @@ Update the authenticated user's profile information.
 
 **Request:**
 ```bash
-curl -X PUT https://uvg5ue10ai.execute-api.us-east-1.amazonaws.com/dev/auth/profile \
+curl -X PUT https://6glk0hluf8.execute-api.us-east-1.amazonaws.com/dev/auth/profile \
   -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
   -H "Content-Type: application/json" \
   -d '{
@@ -206,14 +206,14 @@ Content-Type: application/json       // Required
 ```bash
 # Get user profile
 ACCESS_TOKEN="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-curl -X GET https://uvg5ue10ai.execute-api.us-east-1.amazonaws.com/dev/auth/profile \
+curl -X GET https://6glk0hluf8.execute-api.us-east-1.amazonaws.com/dev/auth/profile \
   -H "Authorization: Bearer $ACCESS_TOKEN" | jq '.'
 ```
 
 ### Update Name Only
 ```bash
 # Update only first and last name
-curl -X PUT https://uvg5ue10ai.execute-api.us-east-1.amazonaws.com/dev/auth/profile \
+curl -X PUT https://6glk0hluf8.execute-api.us-east-1.amazonaws.com/dev/auth/profile \
   -H "Authorization: Bearer $ACCESS_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -225,7 +225,7 @@ curl -X PUT https://uvg5ue10ai.execute-api.us-east-1.amazonaws.com/dev/auth/prof
 ### Update Preferences Only
 ```bash
 # Update user preferences
-curl -X PUT https://uvg5ue10ai.execute-api.us-east-1.amazonaws.com/dev/auth/profile \
+curl -X PUT https://6glk0hluf8.execute-api.us-east-1.amazonaws.com/dev/auth/profile \
   -H "Authorization: Bearer $ACCESS_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -240,7 +240,7 @@ curl -X PUT https://uvg5ue10ai.execute-api.us-east-1.amazonaws.com/dev/auth/prof
 ### Update Cost Settings Only
 ```bash
 # Update cost monitoring settings
-curl -X PUT https://uvg5ue10ai.execute-api.us-east-1.amazonaws.com/dev/auth/profile \
+curl -X PUT https://6glk0hluf8.execute-api.us-east-1.amazonaws.com/dev/auth/profile \
   -H "Authorization: Bearer $ACCESS_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -255,7 +255,7 @@ curl -X PUT https://uvg5ue10ai.execute-api.us-east-1.amazonaws.com/dev/auth/prof
 ### Complete Profile Update
 ```bash
 # Update all profile fields
-curl -X PUT https://uvg5ue10ai.execute-api.us-east-1.amazonaws.com/dev/auth/profile \
+curl -X PUT https://6glk0hluf8.execute-api.us-east-1.amazonaws.com/dev/auth/profile \
   -H "Authorization: Bearer $ACCESS_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{

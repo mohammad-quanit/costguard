@@ -4,7 +4,7 @@ Authentication endpoints for user registration, login, and token management.
 
 ## Base URL
 ```
-https://uvg5ue10ai.execute-api.us-east-1.amazonaws.com/dev
+https://6glk0hluf8.execute-api.us-east-1.amazonaws.com/dev
 ```
 
 ---
@@ -17,7 +17,7 @@ Register a new user account.
 
 **Request:**
 ```bash
-curl -X POST https://uvg5ue10ai.execute-api.us-east-1.amazonaws.com/dev/auth/signup \
+curl -X POST https://6glk0hluf8.execute-api.us-east-1.amazonaws.com/dev/auth/signup \
   -H "Content-Type: application/json" \
   -d '{
     "email": "user@example.com",
@@ -96,7 +96,7 @@ Authenticate user and get access tokens.
 
 **Request:**
 ```bash
-curl -X POST https://uvg5ue10ai.execute-api.us-east-1.amazonaws.com/dev/auth/signin \
+curl -X POST https://6glk0hluf8.execute-api.us-east-1.amazonaws.com/dev/auth/signin \
   -H "Content-Type: application/json" \
   -d '{
     "email": "user@example.com",
@@ -179,7 +179,7 @@ Refresh access token using refresh token.
 
 **Request:**
 ```bash
-curl -X POST https://uvg5ue10ai.execute-api.us-east-1.amazonaws.com/dev/auth/refresh \
+curl -X POST https://6glk0hluf8.execute-api.us-east-1.amazonaws.com/dev/auth/refresh \
   -H "Content-Type: application/json" \
   -d '{
     "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
@@ -229,7 +229,7 @@ curl -X POST https://uvg5ue10ai.execute-api.us-east-1.amazonaws.com/dev/auth/ref
 Include the access token in the Authorization header for protected endpoints:
 
 ```bash
-curl -X GET https://uvg5ue10ai.execute-api.us-east-1.amazonaws.com/dev/auth/profile \
+curl -X GET https://6glk0hluf8.execute-api.us-east-1.amazonaws.com/dev/auth/profile \
   -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 ```
 
@@ -253,7 +253,7 @@ curl -X GET https://uvg5ue10ai.execute-api.us-east-1.amazonaws.com/dev/auth/prof
 
 ```bash
 # 1. Register new user
-curl -X POST https://uvg5ue10ai.execute-api.us-east-1.amazonaws.com/dev/auth/signup \
+curl -X POST https://6glk0hluf8.execute-api.us-east-1.amazonaws.com/dev/auth/signup \
   -H "Content-Type: application/json" \
   -d '{
     "email": "demo@example.com",
@@ -263,7 +263,7 @@ curl -X POST https://uvg5ue10ai.execute-api.us-east-1.amazonaws.com/dev/auth/sig
   }'
 
 # 2. Login to get tokens
-curl -X POST https://uvg5ue10ai.execute-api.us-east-1.amazonaws.com/dev/auth/signin \
+curl -X POST https://6glk0hluf8.execute-api.us-east-1.amazonaws.com/dev/auth/signin \
   -H "Content-Type: application/json" \
   -d '{
     "email": "demo@example.com",
@@ -272,12 +272,12 @@ curl -X POST https://uvg5ue10ai.execute-api.us-east-1.amazonaws.com/dev/auth/sig
 
 # 3. Use access token for protected endpoints
 ACCESS_TOKEN="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-curl -X GET https://uvg5ue10ai.execute-api.us-east-1.amazonaws.com/dev/auth/profile \
+curl -X GET https://6glk0hluf8.execute-api.us-east-1.amazonaws.com/dev/auth/profile \
   -H "Authorization: Bearer $ACCESS_TOKEN"
 
 # 4. Refresh token when needed
 REFRESH_TOKEN="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-curl -X POST https://uvg5ue10ai.execute-api.us-east-1.amazonaws.com/dev/auth/refresh \
+curl -X POST https://6glk0hluf8.execute-api.us-east-1.amazonaws.com/dev/auth/refresh \
   -H "Content-Type: application/json" \
   -d "{\"refreshToken\": \"$REFRESH_TOKEN\"}"
 ```

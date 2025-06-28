@@ -4,7 +4,7 @@ Budget management endpoints for creating, updating, and retrieving budget config
 
 ## Base URL
 ```
-https://uvg5ue10ai.execute-api.us-east-1.amazonaws.com/dev
+https://6glk0hluf8.execute-api.us-east-1.amazonaws.com/dev
 ```
 
 ---
@@ -17,7 +17,7 @@ Create a new budget or update an existing one.
 
 **Request:**
 ```bash
-curl -X POST https://uvg5ue10ai.execute-api.us-east-1.amazonaws.com/dev/budget/set \
+curl -X POST https://6glk0hluf8.execute-api.us-east-1.amazonaws.com/dev/budget/set \
   -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
   -H "Content-Type: application/json" \
   -d '{
@@ -131,7 +131,7 @@ Retrieve all budgets for the authenticated user.
 
 **Request:**
 ```bash
-curl -X GET https://uvg5ue10ai.execute-api.us-east-1.amazonaws.com/dev/budget \
+curl -X GET https://6glk0hluf8.execute-api.us-east-1.amazonaws.com/dev/budget \
   -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 ```
 
@@ -220,7 +220,7 @@ Retrieve a specific budget by ID.
 
 **Request:**
 ```bash
-curl -X GET "https://uvg5ue10ai.execute-api.us-east-1.amazonaws.com/dev/budget?budgetId=a10ba90d-48de-4258-9e7b-9480dfd7617e" \
+curl -X GET "https://6glk0hluf8.execute-api.us-east-1.amazonaws.com/dev/budget?budgetId=a10ba90d-48de-4258-9e7b-9480dfd7617e" \
   -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 ```
 
@@ -288,7 +288,7 @@ Retrieve only the primary/default budget.
 
 **Request:**
 ```bash
-curl -X GET "https://uvg5ue10ai.execute-api.us-east-1.amazonaws.com/dev/budget?primaryOnly=true" \
+curl -X GET "https://6glk0hluf8.execute-api.us-east-1.amazonaws.com/dev/budget?primaryOnly=true" \
   -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 ```
 
@@ -365,7 +365,7 @@ Common AWS services you can monitor:
 ```bash
 # Create basic budget
 ACCESS_TOKEN="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-curl -X POST https://uvg5ue10ai.execute-api.us-east-1.amazonaws.com/dev/budget/set \
+curl -X POST https://6glk0hluf8.execute-api.us-east-1.amazonaws.com/dev/budget/set \
   -H "Authorization: Bearer $ACCESS_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -378,7 +378,7 @@ curl -X POST https://uvg5ue10ai.execute-api.us-east-1.amazonaws.com/dev/budget/s
 ### Create Advanced Budget
 ```bash
 # Create budget with all options
-curl -X POST https://uvg5ue10ai.execute-api.us-east-1.amazonaws.com/dev/budget/set \
+curl -X POST https://6glk0hluf8.execute-api.us-east-1.amazonaws.com/dev/budget/set \
   -H "Authorization: Bearer $ACCESS_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -406,7 +406,7 @@ curl -X POST https://uvg5ue10ai.execute-api.us-east-1.amazonaws.com/dev/budget/s
 ```bash
 # Update budget by providing budgetId
 BUDGET_ID="a10ba90d-48de-4258-9e7b-9480dfd7617e"
-curl -X POST https://uvg5ue10ai.execute-api.us-east-1.amazonaws.com/dev/budget/set \
+curl -X POST https://6glk0hluf8.execute-api.us-east-1.amazonaws.com/dev/budget/set \
   -H "Authorization: Bearer $ACCESS_TOKEN" \
   -H "Content-Type: application/json" \
   -d "{
@@ -419,7 +419,7 @@ curl -X POST https://uvg5ue10ai.execute-api.us-east-1.amazonaws.com/dev/budget/s
 ### Get All Budgets with Summary
 ```bash
 # Get all budgets and extract summary
-curl -X GET https://uvg5ue10ai.execute-api.us-east-1.amazonaws.com/dev/budget \
+curl -X GET https://6glk0hluf8.execute-api.us-east-1.amazonaws.com/dev/budget \
   -H "Authorization: Bearer $ACCESS_TOKEN" | \
   jq '{
     totalBudgets: .totalBudgets,
@@ -437,7 +437,7 @@ curl -X GET https://uvg5ue10ai.execute-api.us-east-1.amazonaws.com/dev/budget \
 ```bash
 # Get specific budget status
 BUDGET_ID="a10ba90d-48de-4258-9e7b-9480dfd7617e"
-curl -X GET "https://uvg5ue10ai.execute-api.us-east-1.amazonaws.com/dev/budget?budgetId=$BUDGET_ID" \
+curl -X GET "https://6glk0hluf8.execute-api.us-east-1.amazonaws.com/dev/budget?budgetId=$BUDGET_ID" \
   -H "Authorization: Bearer $ACCESS_TOKEN" | \
   jq '.budgets[0] | {
     name: .budgetName,

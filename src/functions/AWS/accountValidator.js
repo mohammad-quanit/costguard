@@ -85,7 +85,7 @@ exports.handler = async(event) => {
         alias: accountAlias || `Account-${validationResult.accountId}`,
         region: region,
         validatedAt: new Date().toISOString(),
-      }
+      },
     };
 
     return createResponse(200, response);
