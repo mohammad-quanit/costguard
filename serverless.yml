@@ -140,6 +140,8 @@ functions:
           path: budget
           method: get
           cors: true
+    environment:
+      AWS_ACCOUNTS_TABLE: !Ref AWSAccountsTable
 
   deleteBudget:
     handler: src/functions/Budget/deleteBudgetHandler.handler
@@ -220,6 +222,8 @@ functions:
           path: cost-usage
           method: get
           cors: true
+    environment:
+      AWS_ACCOUNTS_TABLE: !Ref AWSAccountsTable
 
   # SES Email Verifier - Cognito Post-Confirmation Trigger
   sesEmailVerifier:

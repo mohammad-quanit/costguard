@@ -4,7 +4,7 @@ Complete reference for all CostGuard API endpoints with curl examples.
 
 ## Base URL
 ```
-https://6glk0hluf8.execute-api.us-east-1.amazonaws.com/dev
+https://9nr4780m2j.execute-api.us-east-1.amazonaws.com/dev
 ```
 
 ## API Endpoints Summary

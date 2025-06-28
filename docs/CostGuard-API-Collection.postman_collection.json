@@ -8,7 +8,7 @@
   "variable": [
     {
       "key": "baseUrl",
-      "value": "https://6glk0hluf8.execute-api.us-east-1.amazonaws.com/dev",
+      "value": "https://9nr4780m2j.execute-api.us-east-1.amazonaws.com/dev",
       "type": "string"
     },
     {

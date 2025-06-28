@@ -42,7 +42,7 @@ serverless deploy
 
 ## 📚 API Documentation
 
-**Base URL:** `https://6glk0hluf8.execute-api.us-east-1.amazonaws.com/dev`
+**Base URL:** `https://9nr4780m2j.execute-api.us-east-1.amazonaws.com/dev`
 
 ### Available Endpoints
 - Authentication: `/auth/signup`, `/auth/signin`, `/auth/refresh`
