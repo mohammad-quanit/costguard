@@ -1,5 +1,6 @@
 const CostExplorerService = require('../../services/costExplorerService');
 const BudgetsService = require('../../services/budgetsService');
+const { getAWSAccountWithCredentials } = require('../../services/awsAccountService');
 const { createBudgetMetrics, formatCurrency } = require('../../utils/budgetUtils');
 const { getCurrentDayOfMonth, getDaysInCurrentMonth } = require('../../utils/dateUtils');
 const { createSafeResponse, createErrorResponse, logResponse } = require('../../utils/responseUtils');
@@ -10,6 +11,7 @@ const MONTHLY_BUDGET = parseFloat(process.env.MONTHLY_BUDGET) || 0;
 
 /**
  * AWS Lambda handler for getting cost and usage data with service breakdown
+ * Supports multiple AWS accounts via accountId parameter
  * @param {Object} event - Lambda event object (includes user context from auth middleware)
  * @returns {Object} HTTP response with cost data
  */
@@ -17,6 +19,41 @@ const getCostDataHandler = async(event) => {
   console.log('[GetCostAndUsageHandler] Starting cost data retrieval for user:', event.user?.email);
 
   try {
+    // Check if specific AWS account is requested
+    const accountId = event.queryStringParameters?.accountId;
+    let costExplorerService;
+    let budgetsService;
+
+    if (accountId) {
+      // Use specific AWS account credentials
+      console.log(`[GetCostAndUsageHandler] Using AWS account: ${accountId}`);
+
+      const awsAccount = await getAWSAccountWithCredentials(event.user.userId, accountId);
+      if (!awsAccount) {
+        return createErrorResponse(404, 'AWS account not found or access denied');
+      }
+
+      // Initialize services with specific account credentials
+      costExplorerService = new CostExplorerService(awsAccount.region, {
+        accessKeyId: awsAccount.credentials.accessKeyId,
+        secretAccessKey: awsAccount.credentials.secretAccessKey,
+        sessionToken: awsAccount.credentials.sessionToken,
+      });
+
+      budgetsService = new BudgetsService(awsAccount.region, {
+        accessKeyId: awsAccount.credentials.accessKeyId,
+        secretAccessKey: awsAccount.credentials.secretAccessKey,
+        sessionToken: awsAccount.credentials.sessionToken,
+      });
+
+      console.log(`[GetCostAndUsageHandler] Using account: ${awsAccount.accountAlias} (${awsAccount.awsAccountId})`);
+    } else {
+      // Use default AWS credentials (current behavior)
+      console.log('[GetCostAndUsageHandler] Using default AWS credentials');
+      costExplorerService = new CostExplorerService();
+      budgetsService = new BudgetsService();
+    }
+
     // Get user's cost settings
     const userCostSettings = event.user?.costSettings || {};
     const userMonthlyBudget = userCostSettings.monthlyBudget || MONTHLY_BUDGET;
@@ -25,11 +62,8 @@ const getCostDataHandler = async(event) => {
       monthlyBudget: userMonthlyBudget,
       alertThreshold: userCostSettings.alertThreshold,
       currency: event.user?.preferences?.currency || 'USD',
+      accountId: accountId || 'default',
     });
-
-    // Initialize services
-    const costExplorerService = new CostExplorerService();
-    const budgetsService = new BudgetsService();
 
     // Get cost data with service breakdown (6 months back)
     console.log('[GetCostAndUsageHandler] Fetching cost data...');

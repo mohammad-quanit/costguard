@@ -76,7 +76,7 @@ docs/
 
 ## 🔗 Base URL
 ```
-https://xlr4wiih1g.execute-api.us-east-1.amazonaws.com/local
+https://uvg5ue10ai.execute-api.us-east-1.amazonaws.com/dev
 ```
 
 ## 🛠️ Usage Instructions
@@ -101,7 +101,7 @@ cat docs/api/quick-reference.md
 
 ### Quick Start Example
 ```bash
-BASE_URL="https://xlr4wiih1g.execute-api.us-east-1.amazonaws.com/local"
+BASE_URL="https://uvg5ue10ai.execute-api.us-east-1.amazonaws.com/dev"
 
 # 1. Register user
 curl -X POST $BASE_URL/auth/signup \

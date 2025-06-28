@@ -4,7 +4,7 @@ Quick reference guide for all CostGuard API endpoints with essential curl comman
 
 ## 🔗 Base URL
 ```
-https://xlr4wiih1g.execute-api.us-east-1.amazonaws.com/local
+https://uvg5ue10ai.execute-api.us-east-1.amazonaws.com/dev
 ```
 
 ---
@@ -14,12 +14,12 @@ https://xlr4wiih1g.execute-api.us-east-1.amazonaws.com/local
 ### 1. Register & Login
 ```bash
 # Register
-curl -X POST https://xlr4wiih1g.execute-api.us-east-1.amazonaws.com/local/auth/signup \
+curl -X POST https://uvg5ue10ai.execute-api.us-east-1.amazonaws.com/dev/auth/signup \
   -H "Content-Type: application/json" \
   -d '{"email":"user@example.com","password":"SecurePass123!","firstName":"John","lastName":"Doe"}'
 
 # Login & Get Token
-TOKEN=$(curl -X POST https://xlr4wiih1g.execute-api.us-east-1.amazonaws.com/local/auth/signin \
+TOKEN=$(curl -X POST https://uvg5ue10ai.execute-api.us-east-1.amazonaws.com/dev/auth/signin \
   -H "Content-Type: application/json" \
   -d '{"email":"user@example.com","password":"SecurePass123!"}' | jq -r '.tokens.accessToken')
 ```
@@ -27,7 +27,7 @@ TOKEN=$(curl -X POST https://xlr4wiih1g.execute-api.us-east-1.amazonaws.com/loca
 ### 2. Create Budget
 ```bash
 # Create Budget
-curl -X POST https://xlr4wiih1g.execute-api.us-east-1.amazonaws.com/local/budget/set \
+curl -X POST https://uvg5ue10ai.execute-api.us-east-1.amazonaws.com/dev/budget/set \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"budgetName":"My Budget","monthlyLimit":500,"alertThreshold":80}'
@@ -36,7 +36,7 @@ curl -X POST https://xlr4wiih1g.execute-api.us-east-1.amazonaws.com/local/budget
 ### 3. Get Cost Data
 ```bash
 # Get Cost Data
-curl -X GET https://xlr4wiih1g.execute-api.us-east-1.amazonaws.com/local/cost-usage \
+curl -X GET https://uvg5ue10ai.execute-api.us-east-1.amazonaws.com/dev/cost-usage \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -150,7 +150,7 @@ curl -X POST $BASE_URL/alerts/trigger \
 
 ### Complete Setup Flow
 ```bash
-BASE_URL="https://xlr4wiih1g.execute-api.us-east-1.amazonaws.com/local"
+BASE_URL="https://uvg5ue10ai.execute-api.us-east-1.amazonaws.com/dev"
 
 # 1. Register
 curl -X POST $BASE_URL/auth/signup -H "Content-Type: application/json" \

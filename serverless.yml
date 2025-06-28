@@ -63,6 +63,8 @@ provider:
             - !Sub "${UsersTable.Arn}/index/*"
             - !GetAtt CloudBudgetSettingsTable.Arn
             - !Sub "${CloudBudgetSettingsTable.Arn}/index/*"
+            - !GetAtt AWSAccountsTable.Arn
+            - !Sub "${AWSAccountsTable.Arn}/index/*"
         - Effect: Allow
           Action:
             - sns:Publish
@@ -154,6 +156,31 @@ functions:
     description: "Scheduled Lambda to check AWS cost and alert users"
     events:
       - schedule: rate(1 day)
+
+  # AWS Account Management Functions
+  validateAWSAccount:
+    handler: src/functions/AWS/accountValidator.handler
+    description: "Validate AWS credentials and retrieve account data"
+    memorySize: 512
+    events:
+      - http:
+          path: aws/validate-account
+          method: post
+          cors: true
+    environment:
+      AWS_ACCOUNTS_TABLE: !Ref AWSAccountsTable
+
+  fetchAWSAccounts:
+    handler: src/functions/AWS/fetchAccounts.handler
+    description: "Fetch all AWS accounts for authenticated user"
+    memorySize: 256
+    events:
+      - http:
+          path: aws/accounts
+          method: get
+          cors: true
+    environment:
+      AWS_ACCOUNTS_TABLE: !Ref AWSAccountsTable
 
   # Budget Threshold Monitor
   budgetThresholdMonitor:
@@ -278,6 +305,28 @@ resources:
           - AttributeName: userId
             KeyType: HASH
           - AttributeName: budgetId
+            KeyType: RANGE
+        BillingMode: PROVISIONED
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5
+        StreamSpecification:
+          StreamViewType: NEW_AND_OLD_IMAGES
+
+    # DynamoDB AWS Accounts Table
+    AWSAccountsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:service}-aws-accounts-${sls:stage}
+        AttributeDefinitions:
+          - AttributeName: userId
+            AttributeType: S
+          - AttributeName: accountId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: userId
+            KeyType: HASH
+          - AttributeName: accountId
             KeyType: RANGE
         BillingMode: PROVISIONED
         ProvisionedThroughput:

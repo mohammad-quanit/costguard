@@ -6,7 +6,7 @@
 set -e  # Exit on any error
 
 # Configuration
-BASE_URL="https://xlr4wiih1g.execute-api.us-east-1.amazonaws.com/local"
+BASE_URL="https://uvg5ue10ai.execute-api.us-east-1.amazonaws.com/dev"
 TEST_EMAIL="muhammadquanit@gmail.com"
 TEST_PASSWORD="TestPassword123!"
 TEST_FIRST_NAME="Muhammad"

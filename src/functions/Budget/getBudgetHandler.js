@@ -1,10 +1,12 @@
 const { getUserBudgets, getPrimaryBudget, getBudget, calculateUtilization, getBudgetStatus } = require('../../services/budgetService');
 const { getUserByEmail } = require('../../services/userService');
+const { getUserAWSAccounts } = require('../../services/awsAccountService');
 const { createResponse, handleError, extractTokenFromEvent, verifyToken } = require('../../utils/auth');
 
 /**
  * Get Budget Handler
  * Retrieves user's budget settings and current spending status
+ * Supports multiple AWS accounts via accountId parameter
  */
 exports.handler = async(event) => {
   try {
@@ -27,6 +29,25 @@ exports.handler = async(event) => {
         error: 'User not found',
         message: 'User associated with this token no longer exists',
       });
+    }
+
+    // Check if specific AWS account is requested
+    const accountId = event.queryStringParameters?.accountId;
+    let accountInfo = null;
+
+    if (accountId) {
+      // Get user's AWS accounts to verify access
+      const userAccounts = await getUserAWSAccounts(user.userId);
+      accountInfo = userAccounts.find(acc => acc.accountId === accountId);
+
+      if (!accountInfo) {
+        return createResponse(404, {
+          error: 'AWS account not found',
+          message: 'AWS account not found or access denied',
+        });
+      }
+
+      console.log(`Getting budgets for AWS account: ${accountInfo.accountAlias} (${accountInfo.awsAccountId})`);
     }
 
     // Check if user is active
