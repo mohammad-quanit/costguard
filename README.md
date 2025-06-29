@@ -47,7 +47,7 @@ CostGuard leverages AWS Lambda as its core compute engine with **15 specialized 
 - `fetchAWSAccounts` - Retrieve stored AWS accounts
 
 ### **Automated Monitoring**
-- `budgetThresholdMonitor` - **Scheduled function** (runs every 1 minute)
+- `budgetThresholdMonitor` - **Scheduled function** (runs every 12 hours)
   - Monitors all AWS accounts for budget violations
   - Sends email alerts when thresholds are crossed
   - Supports multi-account cost tracking
