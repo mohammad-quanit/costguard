@@ -19,7 +19,7 @@ CostGuard is a comprehensive AWS cost monitoring and budget management system bu
 
 ## 🏗️ Architecture
 
-Serverless infrastructure using 15+ AWS Lambda functions, API Gateway, DynamoDB, Cognito, and Cost Explorer API.
+Serverless infrastructure using 10+ AWS Lambda functions, API Gateway, DynamoDB, Cognito, and Cost Explorer API.
 
 ```
 API Gateway → Lambda Functions → DynamoDB
