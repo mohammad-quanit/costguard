@@ -2,7 +2,7 @@
 
 [![Serverless](https://img.shields.io/badge/serverless-framework-orange)](https://www.serverless.com/)
 [![AWS](https://img.shields.io/badge/AWS-Lambda-yellow)](https://aws.amazon.com/lambda/)
-[![Node.js](https://img.shields.io/badge/Node.js-18.x-green)](https://nodejs.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-22.x-green)](https://nodejs.org/)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
 CostGuard is a comprehensive AWS cost monitoring and budget management system built with serverless architecture. It provides real-time cost tracking, budget alerts, and detailed spending analytics to help you manage your AWS expenses effectively across multiple AWS accounts.
@@ -62,7 +62,7 @@ CostGuard leverages AWS Lambda as its core compute engine with **15 specialized 
 ## 🚀 Local Development Setup
 
 ### Prerequisites
-- **Node.js 18.x** or later
+- **Node.js 22.x** or later
 - **pnpm** package manager
 - **AWS CLI** configured with appropriate permissions
 - **Serverless Framework** installed globally
