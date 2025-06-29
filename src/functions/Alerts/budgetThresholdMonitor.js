@@ -7,7 +7,7 @@ const sesClient = new SESClient({ region: process.env.AWS_REGION || 'us-east-1' 
 
 /**
  * Budget Threshold Monitor
- * Runs every minute to check app budget thresholds and send email alerts
+ * Runs every 12 hours to check app budget thresholds and send email alerts
  */
 exports.handler = async(event) => {
   console.log('Budget Threshold Monitor started');
@@ -50,9 +50,9 @@ exports.handler = async(event) => {
     // currentMonthCost = 150.00; // Will trigger alerts for all budgets
 
     // SCENARIO 4: Low spending - will trigger no alerts (uncomment to test)
-    currentMonthCost = 5.00; // Will not trigger any alerts
+    // currentMonthCost = 5.00; // Will not trigger any alerts
 
-    console.log('🧪 TESTING MODE: Using dummy currentMonthCost =', currentMonthCost);
+    // console.log('🧪 TESTING MODE: Using dummy currentMonthCost =', currentMonthCost);
 
     // Expected behavior with currentMonthCost = $25.50:
     // - Budget: "mquanit Budget" ($20 limit, 75% threshold = $15) → ALERT ✅ (25.50 > 15)

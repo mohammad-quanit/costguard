@@ -187,12 +187,12 @@ functions:
   # Budget Threshold Monitor
   budgetThresholdMonitor:
     handler: src/functions/Alerts/budgetThresholdMonitor.handler
-    description: "Monitor budget thresholds every minute and send email alerts"
+    description: "Monitor budget thresholds every 12 hours and send email alerts"
     timeout: 60
     memorySize: 512
     events:
       - schedule:
-          rate: rate(1 minute)
+          rate: rate(12 hours)
           enabled: true
     environment:
       CLOUD_BUDGET_SETTINGS_TABLE: !Ref CloudBudgetSettingsTable

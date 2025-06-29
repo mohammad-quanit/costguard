@@ -4,7 +4,7 @@ Cost monitoring and alerting endpoints for tracking AWS spending and triggering 
 
 ## Base URL
 ```
-https://9nr4780m2j.execute-api.us-east-1.amazonaws.com/dev
+https://v49jjlxhmc.execute-api.us-east-1.amazonaws.com/dev
 ```
 
 ---
@@ -17,7 +17,7 @@ Retrieve AWS cost and usage data for the authenticated user.
 
 **Request:**
 ```bash
-curl -X GET https://9nr4780m2j.execute-api.us-east-1.amazonaws.com/dev/cost-usage \
+curl -X GET https://v49jjlxhmc.execute-api.us-east-1.amazonaws.com/dev/cost-usage \
   -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 ```
 
@@ -36,7 +36,7 @@ groupBy=SERVICE         // Optional: SERVICE, REGION, USAGE_TYPE
 
 **Example with Parameters:**
 ```bash
-curl -X GET "https://9nr4780m2j.execute-api.us-east-1.amazonaws.com/dev/cost-usage?startDate=2025-06-01&endDate=2025-06-30&granularity=DAILY&groupBy=SERVICE" \
+curl -X GET "https://v49jjlxhmc.execute-api.us-east-1.amazonaws.com/dev/cost-usage?startDate=2025-06-01&endDate=2025-06-30&granularity=DAILY&groupBy=SERVICE" \
   -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 ```
 
@@ -179,7 +179,7 @@ Manually trigger cost alert checking for all active budgets.
 
 **Request:**
 ```bash
-curl -X POST https://9nr4780m2j.execute-api.us-east-1.amazonaws.com/dev/alerts/trigger \
+curl -X POST https://v49jjlxhmc.execute-api.us-east-1.amazonaws.com/dev/alerts/trigger \
   -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
   -H "Content-Type: application/json"
 ```
@@ -332,7 +332,7 @@ Content-Type: application/json       // Required
 ```bash
 # Get current month's cost breakdown
 ACCESS_TOKEN="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-curl -X GET https://9nr4780m2j.execute-api.us-east-1.amazonaws.com/dev/cost-usage \
+curl -X GET https://v49jjlxhmc.execute-api.us-east-1.amazonaws.com/dev/cost-usage \
   -H "Authorization: Bearer $ACCESS_TOKEN" | \
   jq '{
     totalCost: .costData.totalCost.amount,
@@ -348,14 +348,14 @@ curl -X GET https://9nr4780m2j.execute-api.us-east-1.amazonaws.com/dev/cost-usag
 START_DATE=$(date -d "$(date +%Y-%m-01)" +%Y-%m-%d)
 END_DATE=$(date +%Y-%m-%d)
 
-curl -X GET "https://9nr4780m2j.execute-api.us-east-1.amazonaws.com/dev/cost-usage?startDate=$START_DATE&endDate=$END_DATE&granularity=DAILY" \
+curl -X GET "https://v49jjlxhmc.execute-api.us-east-1.amazonaws.com/dev/cost-usage?startDate=$START_DATE&endDate=$END_DATE&granularity=DAILY" \
   -H "Authorization: Bearer $ACCESS_TOKEN"
 ```
 
 ### Get Cost by Service
 ```bash
 # Get cost breakdown by AWS service
-curl -X GET "https://9nr4780m2j.execute-api.us-east-1.amazonaws.com/dev/cost-usage?groupBy=SERVICE" \
+curl -X GET "https://v49jjlxhmc.execute-api.us-east-1.amazonaws.com/dev/cost-usage?groupBy=SERVICE" \
   -H "Authorization: Bearer $ACCESS_TOKEN" | \
   jq '.costData.resultsByTime[0].groups[] | {
     service: .keys[0],
@@ -366,7 +366,7 @@ curl -X GET "https://9nr4780m2j.execute-api.us-east-1.amazonaws.com/dev/cost-usa
 ### Trigger Manual Alert Check
 ```bash
 # Manually trigger cost alert checking
-curl -X POST https://9nr4780m2j.execute-api.us-east-1.amazonaws.com/dev/alerts/trigger \
+curl -X POST https://v49jjlxhmc.execute-api.us-east-1.amazonaws.com/dev/alerts/trigger \
   -H "Authorization: Bearer $ACCESS_TOKEN" \
   -H "Content-Type: application/json" | \
   jq '{
@@ -384,7 +384,7 @@ curl -X POST https://9nr4780m2j.execute-api.us-east-1.amazonaws.com/dev/alerts/t
 ### Monitor Budget Performance
 ```bash
 # Get budget performance summary
-curl -X GET https://9nr4780m2j.execute-api.us-east-1.amazonaws.com/dev/cost-usage \
+curl -X GET https://v49jjlxhmc.execute-api.us-east-1.amazonaws.com/dev/cost-usage \
   -H "Authorization: Bearer $ACCESS_TOKEN" | \
   jq '{
     totalBudget: .budgetContext.totalBudgetLimit,
@@ -400,7 +400,7 @@ curl -X GET https://9nr4780m2j.execute-api.us-east-1.amazonaws.com/dev/cost-usag
 ### Check Specific Date Range
 ```bash
 # Get cost data for specific date range
-curl -X GET "https://9nr4780m2j.execute-api.us-east-1.amazonaws.com/dev/cost-usage?startDate=2025-06-01&endDate=2025-06-15&granularity=DAILY" \
+curl -X GET "https://v49jjlxhmc.execute-api.us-east-1.amazonaws.com/dev/cost-usage?startDate=2025-06-01&endDate=2025-06-15&granularity=DAILY" \
   -H "Authorization: Bearer $ACCESS_TOKEN" | \
   jq '{
     period: .costData.timePeriod,

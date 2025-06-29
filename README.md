@@ -11,7 +11,7 @@ CostGuard is a comprehensive AWS cost monitoring and budget management system bu
 
 - **💰 Multi-Account Budget Management** - Create and manage budgets across multiple AWS accounts
 - **📊 Real-time Cost Monitoring** - Integration with AWS Cost Explorer API for live cost data
-- **🚨 Smart Alerts** - Automated threshold notifications via email with 1-minute monitoring
+- **🚨 Smart Alerts** - Automated threshold notifications via email with 12-hour monitoring
 - **👤 User Management** - Secure JWT authentication with AWS Cognito
 - **📈 Analytics** - Service breakdown, projections, and historical trends
 - **🔐 AWS Account Validation** - Secure credential validation using AWS STS
@@ -47,7 +47,7 @@ CostGuard leverages AWS Lambda as its core compute engine with **15 specialized 
 - `fetchAWSAccounts` - Retrieve stored AWS accounts
 
 ### **Automated Monitoring**
-- `budgetThresholdMonitor` - **Scheduled function** (runs every 1 minute)
+- `budgetThresholdMonitor` - **Scheduled function** (runs every 12 hours)
   - Monitors all AWS accounts for budget violations
   - Sends email alerts when thresholds are crossed
   - Supports multi-account cost tracking
@@ -209,7 +209,7 @@ FROM_EMAIL: your-verified-ses-email@example.com
 
 ## 🚨 Monitoring & Alerts
 
-- **Real-time monitoring** every 1 minute via EventBridge
+- **Real-time monitoring** every 12 hours via EventBridge
 - **Email alerts** when budget thresholds are crossed
 - **Multi-account support** - Monitor costs across all connected AWS accounts
 - **Customizable thresholds** per budget
